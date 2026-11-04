@@ -1,62 +1,62 @@
 {
  "toyota-avanza": {
   "w": 1400,
-  "h": 907,
-  "asli": 688,
+  "h": 836,
+  "asli": 1629,
   "kanan": false
  },
  "daihatsu-xenia": {
   "w": 1400,
-  "h": 687,
-  "asli": 900,
+  "h": 716,
+  "asli": 1536,
   "kanan": false
  },
  "toyota-innova-reborn": {
   "w": 1400,
-  "h": 795,
-  "asli": 683,
+  "h": 739,
+  "asli": 1754,
   "kanan": false
  },
  "toyota-innova-zenix": {
   "w": 1400,
-  "h": 779,
-  "asli": 632,
+  "h": 726,
+  "asli": 1536,
   "kanan": false
  },
  "toyota-alphard": {
   "w": 1400,
-  "h": 684,
-  "asli": 688,
+  "h": 650,
+  "asli": 1774,
   "kanan": false
  },
  "toyota-fortuner": {
   "w": 1400,
-  "h": 792,
-  "asli": 312,
+  "h": 770,
+  "asli": 1682,
   "kanan": false
  },
  "toyota-hiace": {
   "w": 1400,
-  "h": 728,
-  "asli": 592,
+  "h": 740,
+  "asli": 1633,
   "kanan": false
  },
  "isuzu-elf": {
   "w": 1400,
-  "h": 702,
-  "asli": 690,
-  "kanan": true
+  "h": 696,
+  "asli": 1774,
+  "kanan": false
  },
  "bus-medium": {
   "w": 1400,
-  "h": 932,
-  "asli": 1024,
+  "h": 872,
+  "asli": 1536,
   "kanan": false
  },
  "bus-besar": {
   "w": 1400,
-  "h": 878,
-  "asli": 743,
+  "h": 864,
+  "asli": 1681,
   "kanan": false
  }
 }

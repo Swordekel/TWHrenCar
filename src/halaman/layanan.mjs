@@ -18,7 +18,7 @@ ${heroHalaman({ judul: 'Satu rental untuk semua perjalanan.', teks: 'Antar jempu
         <p class="layanan-saran">Paling cocok: <a href="/armada/${m.slug}/">${esc(m.nama)}</a>, mulai ${rupiah(m.harga)}/hari</p>
         <div class="tombol-kiri"><a class="pill pill-navy" data-wa="layanan" data-layanan="${esc(l.wa)}" href="https://wa.me/" target="_blank" rel="noopener">${ikon('wa')} Tanya ${esc(l.judul.toLowerCase())}</a></div>
       </div>
-      <a class="layanan-baris-foto${m.slug === 'isuzu-elf' ? ' kanan-terpotong' : ''}" href="/armada/${m.slug}/" tabindex="-1" aria-hidden="true">${fotoMobil(m, '(max-width: 900px) 86vw, 44vw', '', 'lazy', '')}</a>
+      <a class="layanan-baris-foto" href="/armada/${m.slug}/" tabindex="-1" aria-hidden="true">${fotoMobil(m, '(max-width: 900px) 86vw, 44vw', '', 'lazy', '')}</a>
     </article>`; }).join('\n    ')}
   </div>
 </section>`;

@@ -7,7 +7,7 @@ const ikon = (id) => `<svg class="ik" aria-hidden="true"><use href="#i-${id}"/><
 const kelasLabel = (id) => KELAS.find((k) => k.id === id).label;
 
 export function kartuMobil(m, fotoMobil, judulTag = 'h3') {
-  return `<article class="kartu-mobil${m.slug === 'isuzu-elf' ? ' kanan-terpotong' : ''}" data-kelas="${m.kelas}" data-kursi="${m.kursi}">
+  return `<article class="kartu-mobil" data-kelas="${m.kelas}" data-kursi="${m.kursi}">
   <a class="kartu-panggung" href="/armada/${m.slug}/" tabindex="-1" aria-hidden="true">${fotoMobil(m, '(max-width: 700px) 86vw, 360px', 'kartu-foto')}</a>
   <div class="kartu-isi">
     <p class="kartu-jenis">${esc(m.jenis)}</p>
@@ -71,7 +71,7 @@ export const heroHalaman = ({ judul, teks, remah, mobil, fotoMobil, tombol = '' 
       <p class="hero-teks">${esc(teks)}</p>
       ${tombol}
     </div>
-    ${mobil ? `<div class="hero-halaman-mobil${mobil.slug === 'isuzu-elf' ? ' kanan-terpotong' : ''}">${fotoMobil(mobil, '(max-width: 900px) 86vw, 46vw', 'hero-halaman-foto', 'awal')}</div>` : ''}
+    ${mobil ? `<div class="hero-halaman-mobil">${fotoMobil(mobil, '(max-width: 900px) 86vw, 46vw', 'hero-halaman-foto', 'awal')}</div>` : ''}
   </div>
 </section>`;
 

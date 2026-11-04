@@ -21,7 +21,7 @@ export default ({ h, fotoMobil, remah }) => {
         <a class="tautan-panah" href="/armada/">Bandingkan armada ${ikon('panah')}</a>
       </div>
     </div>
-    <div class="hero-mobil-panggung${m.slug === 'isuzu-elf' ? ' kanan-terpotong' : ''}">${fotoMobil(m, '(max-width: 900px) 92vw, 52vw', 'hero-mobil-foto', 'awal')}</div>
+    <div class="hero-mobil-panggung">${fotoMobil(m, '(max-width: 900px) 92vw, 52vw', 'hero-mobil-foto', 'awal')}</div>
   </div>
 </section>
 

@@ -35,12 +35,12 @@ export const KELAS = [
 ];
 
 // Armada. arah = ke mana bagian depan mobil menghadap di foto (hero: mobil keluar ke arah depannya). lampu = titik
-// lampu depan di foto hasil alat/foto.py (pecahan lebar dan tinggi gambar), untuk kedipan lampu saat mobil diklik di
+// lampu depan di foto hasil alat/foto.py (pecahan lebar dan tinggi gambar; diukur ulang 2026-11-04 untuk foto ChatGPT), untuk kedipan lampu saat mobil diklik di
 // hero. ganti = urutan di hero beranda.
 export const ARMADA = [
   {
     slug: 'toyota-avanza', merek: 'Toyota', model: 'Avanza', trim: '1.5 G CVT', kelas: 'mpv', jenis: 'MPV', kursi: 7, transmisi: 'CVT (otomatis)', harga: 450000,
-    arah: 'kanan', lampu: [[0.455, 0.355], [0.935, 0.345]], hero: 1,
+    arah: 'kanan', lampu: [[0.47, 0.4], [0.935, 0.39]], hero: 1,
     ringkas: 'MPV tujuh kursi yang paling sering dipilih untuk keluarga.',
     isi: 'Avanza generasi terbaru dengan transmisi CVT: ringan dikendarai di jalan Jakarta yang padat, kabin tiga baris untuk tujuh orang, dan bagasi yang cukup untuk koper satu keluarga bila baris ketiga dilipat.',
     cocok: ['Liburan keluarga', 'Antar jemput bandara', 'Keperluan harian dalam kota'],
@@ -61,14 +61,14 @@ export const ARMADA = [
   },
   {
     slug: 'toyota-innova-zenix', merek: 'Toyota', model: 'Innova Zenix', trim: '2.0 Q Hybrid', kelas: 'mpv', jenis: 'MPV', kursi: 7, transmisi: 'e-CVT (hybrid)', harga: 1500000,
-    arah: 'kiri', lampu: [[0.045, 0.42], [0.4, 0.41]], hero: 2,
+    arah: 'kiri', lampu: [[0.045, 0.42], [0.37, 0.45]], hero: 2,
     ringkas: 'Innova generasi terbaru, hybrid, senyap, dan mewah.',
     isi: 'Innova Zenix 2.0 Q Hybrid adalah varian tertinggi: mesin hybrid yang senyap dan irit, kursi baris kedua captain seat, dan fitur kenyamanan yang membuat perjalanan bisnis terasa kelas atas.',
     cocok: ['Tamu perusahaan', 'Antar jemput bandara', 'Perjalanan bisnis'],
   },
   {
     slug: 'toyota-alphard', merek: 'Toyota', model: 'Alphard', trim: '2.5 G AT', kelas: 'mpv', jenis: 'MPV mewah', kursi: 7, transmisi: 'Otomatis', harga: 1700000,
-    arah: 'kiri', lampu: [[0.05, 0.4], [0.29, 0.385]], hero: 3,
+    arah: 'kiri', lampu: [[0.04, 0.4], [0.32, 0.4]], hero: 3,
     ringkas: 'MPV paling mewah di armada kami.',
     isi: 'Alphard generasi terbaru dengan kabin bak ruang tunggu kelas satu: pintu geser elektrik, kursi tengah yang bisa direbahkan, dan ruang kaki yang lapang. Pilihan utama untuk pernikahan, tamu VIP, dan acara penting.',
     cocok: ['Mobil pengantin', 'Tamu VIP dan direksi', 'Acara resmi'],
@@ -82,7 +82,7 @@ export const ARMADA = [
   },
   {
     slug: 'toyota-hiace', merek: 'Toyota', model: 'Hiace', trim: 'Commuter', kelas: 'minibus', jenis: 'Minibus', kursi: 15, transmisi: 'Manual', harga: 1800000,
-    arah: 'kiri', lampu: [[0.035, 0.555], [0.25, 0.575]], hero: 4,
+    arah: 'kiri', lampu: [[0.025, 0.56], [0.25, 0.57]], hero: 4,
     ringkas: 'Minibus 15 kursi untuk rombongan.',
     isi: 'Hiace Commuter muat lima belas penumpang dengan kabin tinggi dan AC sampai ke baris belakang. Satu mobil untuk satu rombongan: lebih hemat dan lebih mudah dikoordinasikan daripada beberapa MPV.',
     cocok: ['Wisata rombongan', 'Outing kantor', 'Antar jemput acara'],
@@ -103,7 +103,7 @@ export const ARMADA = [
   },
   {
     slug: 'bus-besar', merek: 'Bus', model: 'Big Bus', trim: 'Pariwisata SHD', kelas: 'bus', jenis: 'Bus', kursi: 59, transmisi: 'Manual', harga: 3500000,
-    arah: 'kiri', lampu: [[0.155, 0.755], [0.42, 0.755]], hero: 5,
+    arah: 'kiri', lampu: [[0.13, 0.84], [0.41, 0.84]], hero: 5,
     ringkas: 'Bus pariwisata besar, sampai 59 kursi.',
     isi: 'Big bus pariwisata SHD (super high deck) untuk lima puluh sembilan penumpang dengan bagasi besar di bawah kabin. Untuk rombongan besar dan perjalanan antarkota yang jauh.',
     cocok: ['Rombongan besar', 'Perjalanan antarkota', 'Acara perusahaan'],

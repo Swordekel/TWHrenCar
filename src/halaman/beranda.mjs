@@ -8,7 +8,7 @@ export default ({ fotoMobil, mobilBySlug }) => {
   return `
 <section id="atas" class="hero hero-panggung" data-bg="#EEF4F1" aria-label="Pembuka">
   <div class="panggung" id="panggung">
-    <div class="panggung-tempat${m0.slug === 'isuzu-elf' ? ' kanan-terpotong' : ''}" id="panggung-tempat">${fotoMobil(m0, '(max-width: 760px) 92vw, 56vw', 'panggung-foto', 'awal', `${m0.nama} di panggung TWH Rent Car`)}</div>
+    <div class="panggung-tempat" id="panggung-tempat">${fotoMobil(m0, '(max-width: 760px) 92vw, 56vw', 'panggung-foto', 'awal', `${m0.nama} di panggung TWH Rent Car`)}</div>
     <canvas class="panggung-kanvas" id="panggung-kanvas" aria-hidden="true"></canvas>
   </div>
   <div class="wrap hero-isi">
@@ -76,7 +76,7 @@ export default ({ fotoMobil, mobilBySlug }) => {
     </div>
     <div class="layanan-grid">
       ${LAYANAN.map((l) => { const m = mobilBySlug(l.mobil); return `<a class="layanan-kartu" href="/layanan/#${l.id}">
-        <span class="layanan-foto${m.slug === 'isuzu-elf' ? ' kanan-terpotong' : ''}">${fotoMobil(m, '(max-width: 700px) 70vw, 300px', '', 'lazy', '')}</span>
+        <span class="layanan-foto">${fotoMobil(m, '(max-width: 700px) 70vw, 300px', '', 'lazy', '')}</span>
         <h3>${esc(l.judul)}</h3><p>${esc(l.teks)}</p><span class="layanan-panah">${ikon('panah')}</span></a>`; }).join('\n      ')}
     </div>
   </div>
