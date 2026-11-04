@@ -202,6 +202,17 @@ html.menu-terbuka{overflow:hidden}
 .hero-chips button[aria-pressed="true"]{background:var(--tinta)}
 .hero-petunjuk{position:absolute;right:var(--sisi);top:-34px;margin:0;font-size:12px;color:var(--redam);opacity:0;transition:opacity .6s}
 .panggung-siap .hero-petunjuk{opacity:.85}
+/* laptop dengan layar pendek (mis. 1280x630, 1366x650): judul mengecil mengikuti tinggi layar, nama dan harga mobil
+   disembunyikan (ada di kartu armada), pilihan mobil tetap terlihat di kanan bawah */
+@media (min-width:901px) and (max-height:780px){
+  .hero-isi{padding-top:clamp(92px,15vh,124px)}
+  .hero h1{font-size:min(6.4vw,11.4vh)}
+  .hero-label{margin-bottom:14px}
+  .hero-teks{margin:16px 0 20px}
+  .hero-info{display:none}
+  .hero-chips{margin-left:auto}
+  .panggung-tempat{bottom:17%;width:min(50vw,900px,92vh)}
+}
 @media (max-width:900px){
   .hero-panggung{grid-template-rows:auto minmax(calc(60vw + 40px),1fr) auto}
   .hero-info{display:none}
