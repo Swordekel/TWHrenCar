@@ -1,0 +1,21 @@
+{
+ "name": "TWH Rent Car",
+ "short_name": "TWH Rent Car",
+ "lang": "id",
+ "start_url": "/",
+ "display": "browser",
+ "background_color": "#EEF4F1",
+ "theme_color": "#1B4766",
+ "icons": [
+  {
+   "src": "/apple-touch-icon.png",
+   "sizes": "180x180",
+   "type": "image/png"
+  },
+  {
+   "src": "/assets/logo/ikon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}

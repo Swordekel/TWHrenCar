@@ -1,0 +1,116 @@
+[
+ {
+  "kunci": "beranda",
+  "judul": "Sewa mobil, diantar ke depan pintu.",
+  "sub": "Jakarta · Malang · Surabaya · buka 24 jam",
+  "mobil": "toyota-alphard"
+ },
+ {
+  "kunci": "armada",
+  "judul": "Sepuluh pilihan, dari Avanza sampai bus.",
+  "sub": "Jakarta · Malang · Surabaya · buka 24 jam",
+  "mobil": "toyota-innova-zenix"
+ },
+ {
+  "kunci": "layanan",
+  "judul": "Satu rental untuk semua perjalanan.",
+  "sub": "Jakarta · Malang · Surabaya · buka 24 jam",
+  "mobil": "toyota-hiace"
+ },
+ {
+  "kunci": "cara-sewa",
+  "judul": "Empat langkah, sekitar sepuluh menit.",
+  "sub": "Jakarta · Malang · Surabaya · buka 24 jam",
+  "mobil": "toyota-avanza"
+ },
+ {
+  "kunci": "lokasi",
+  "judul": "Jakarta, Malang, Surabaya.",
+  "sub": "Jakarta · Malang · Surabaya · buka 24 jam",
+  "mobil": "toyota-innova-reborn"
+ },
+ {
+  "kunci": "kontak",
+  "judul": "Pesan sekarang, kami balas cepat.",
+  "sub": "Jakarta · Malang · Surabaya · buka 24 jam",
+  "mobil": "toyota-alphard"
+ },
+ {
+  "kunci": "mobil-toyota-avanza",
+  "judul": "Toyota Avanza, Rp450 rb per hari.",
+  "sub": "7 kursi · CVT (otomatis) · mulai Rp450.000/hari",
+  "mobil": "toyota-avanza"
+ },
+ {
+  "kunci": "mobil-daihatsu-xenia",
+  "judul": "Daihatsu Xenia, Rp450 rb per hari.",
+  "sub": "7 kursi · CVT (otomatis) · mulai Rp450.000/hari",
+  "mobil": "daihatsu-xenia"
+ },
+ {
+  "kunci": "mobil-toyota-innova-reborn",
+  "judul": "Toyota Innova Reborn, Rp700 rb per hari.",
+  "sub": "7 kursi · Otomatis · mulai Rp700.000/hari",
+  "mobil": "toyota-innova-reborn"
+ },
+ {
+  "kunci": "mobil-toyota-innova-zenix",
+  "judul": "Toyota Innova Zenix, Rp1,5 jt per hari.",
+  "sub": "7 kursi · e-CVT (hybrid) · mulai Rp1.500.000/hari",
+  "mobil": "toyota-innova-zenix"
+ },
+ {
+  "kunci": "mobil-toyota-alphard",
+  "judul": "Toyota Alphard, Rp1,7 jt per hari.",
+  "sub": "7 kursi · Otomatis · mulai Rp1.700.000/hari",
+  "mobil": "toyota-alphard"
+ },
+ {
+  "kunci": "mobil-toyota-fortuner",
+  "judul": "Toyota Fortuner, Rp1,5 jt per hari.",
+  "sub": "7 kursi · Otomatis · mulai Rp1.500.000/hari",
+  "mobil": "toyota-fortuner"
+ },
+ {
+  "kunci": "mobil-toyota-hiace",
+  "judul": "Toyota Hiace, Rp1,8 jt per hari.",
+  "sub": "15 kursi · Manual · mulai Rp1.800.000/hari",
+  "mobil": "toyota-hiace"
+ },
+ {
+  "kunci": "mobil-isuzu-elf",
+  "judul": "Isuzu Elf, Rp1,8 jt per hari.",
+  "sub": "19 kursi · Manual · mulai Rp1.800.000/hari",
+  "mobil": "isuzu-elf"
+ },
+ {
+  "kunci": "mobil-bus-medium",
+  "judul": "Medium Bus, Rp2,5 jt per hari.",
+  "sub": "31 kursi · Manual · mulai Rp2.500.000/hari",
+  "mobil": "bus-medium"
+ },
+ {
+  "kunci": "mobil-bus-besar",
+  "judul": "Big Bus, Rp3,5 jt per hari.",
+  "sub": "59 kursi · Manual · mulai Rp3.500.000/hari",
+  "mobil": "bus-besar"
+ },
+ {
+  "kunci": "kota-jakarta",
+  "judul": "Sewa mobil di Jakarta.",
+  "sub": "20 unit · antar ke hotel dan bandara · buka 24 jam",
+  "mobil": "toyota-avanza"
+ },
+ {
+  "kunci": "kota-malang",
+  "judul": "Sewa mobil di Malang.",
+  "sub": "15 unit · antar ke hotel dan bandara · buka 24 jam",
+  "mobil": "toyota-hiace"
+ },
+ {
+  "kunci": "kota-surabaya",
+  "judul": "Sewa mobil di Surabaya.",
+  "sub": "15 unit · antar ke hotel dan bandara · buka 24 jam",
+  "mobil": "toyota-innova-zenix"
+ }
+]

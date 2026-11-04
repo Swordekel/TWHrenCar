@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://twhrentcar.vercel.app/sitemap.xml

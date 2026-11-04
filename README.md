@@ -1,72 +1,93 @@
-# DriveElite — Premium Car Rental Indonesia 🏎️✨
+# TWH Rent Car
 
-Selamat datang di repositori **DriveElite**, platform rental mobil mewah terkemuka di Indonesia. Website ini dirancang untuk memberikan pengalaman *booking* yang mulus, elegan, dan profesional bagi pelanggan yang mencari kendaraan kelas atas seperti Porsche, BMW, Tesla, hingga Lamborghini.
+Situs rental mobil dan bus **TWH Rent Car** (Jakarta, Malang, Surabaya, sejak 2017): https://twhrentcar.vercel.app
+Dibuat ulang oleh ARSWORD pada November 2026 dengan gaya situs ARSWORD lain (Nila Merah, Bengkel Nusantara):
+satu huruf (Archivo), warna dari lencana klien (mint `#90D0BF`, navy `#1B4766`), efek WebGL, dan SEO lengkap.
 
-## ✨ Fitur Utama
+## Halaman
 
-- **Desain Modern & Responsif**: Tampilan antarmuka yang elegan, bersih, dan dioptimalkan untuk semua ukuran layar (Desktop, Tablet, Mobile).
-- **Katalog Armada Interaktif**: Filter dinamis untuk mencari mobil berdasarkan kategori (Sports, SUV, Luxury, Electric, Hypercar).
-- **Proses Booking Sederhana**: Alur penyewaan 4 langkah mudah dengan integrasi pemesanan langsung melalui WhatsApp.
-- **Kalkulator Harga Otomatis**: Menghitung estimasi biaya sewa berdasarkan durasi tanggal yang dipilih.
-- **Blog & Insight**: Bagian artikel terintegrasi untuk memberikan tips, review, dan insight seputar otomotif mewah.
-- **SEO Optimized**: Struktur HTML semantik untuk visibilitas mesin pencari yang lebih baik.
+| Alamat | Isi |
+|---|---|
+| `/` | Panggung mobil (WebGL), cek ketersediaan, kalimat bergulir dengan rute, angka, armada geser samping, layanan, cara sewa, peta tiga kota, ulasan |
+| `/armada/` | Pemilih jumlah penumpang, filter jenis, kartu semua kendaraan, tabel daftar harga |
+| `/armada/<mobil>/` | Satu halaman per kendaraan (10): harga, spesifikasi, cocok untuk, cara sewa, mobil lain |
+| `/layanan/` | Antar jemput bandara, mobil pengantin, perusahaan, wisata, antar kota, mingguan/bulanan |
+| `/cara-sewa/` | Empat langkah, daftar dokumen (bisa dicentang), cara bayar, FAQ |
+| `/lokasi/` | Peta titik Pulau Jawa, tiga kota, garasi Jakarta |
+| `/sewa-mobil-jakarta/`, `/sewa-mobil-malang/`, `/sewa-mobil-surabaya/` | Halaman kota (kata kunci "sewa mobil <kota>") |
+| `/kontak/` | Formulir pesan ke WhatsApp, kontak, peta Google (dimuat saat diklik) |
 
-## 🛠️ Teknologi yang Digunakan
+Semua tombol "Pesan" membuka lembar pesan: pilih mobil, kota, tanggal, jam, tempat serah; perkiraan harga dihitung
+otomatis (lama x harga per hari), lalu pesan lengkap terbuka di WhatsApp 0812-9060-8190. Tidak ada data yang disimpan.
 
-Website ini dibangun menggunakan stack teknologi web murni untuk performa maksimal dan waktu muat yang sangat cepat:
+## Efek
 
-- **HTML5**: Struktur semantik dan aksesibilitas.
-- **CSS3 (Vanilla)**: Styling kustom dengan animasi halus (*smooth transitions*), Flexbox, dan CSS Grid tanpa dependensi framework eksternal.
-- **JavaScript (ES6)**: Logika interaktif untuk filter armada, modal pemesanan, kalkulasi harga, dan fungsionalitas UI lainnya.
-- **Google Fonts**: Tipografi modern menggunakan DM Sans, Space Mono, dan Bebas Neue.
-- **Unsplash API (Placeholder Images)**: Gambar resolusi tinggi untuk armada dan blog.
+- **Intro** (sekali per sesi): lencana TWH muncul, garis segi enam tergambar, petir berkilat, lalu layar navy menyusut
+  menjadi segi enam yang terbang ke logo di kepala.
+- **Panggung mobil** (hero beranda): studio foto terang, pantulan di lantai, bayangan kontak. Ganti mobil = mobil lama
+  melaju keluar ke arah depannya, mobil baru masuk dan mengerem (kabur searah gerak). Sesekali pita cahaya softbox menyapu
+  bodi. Klik mobil = lampu depan menyala dua kali (titik lampu per foto di `src/data.mjs`, `lampu`).
+- **Latar**: warna antarbagian berganti seperti mobil yang menyalip, dengan garis cahaya mint di tepinya.
+- **Rute**: jalan berliku dari garasi ke tujuan terisi bersama kalimat yang menyala.
+- **Gantungan kunci** (kaki semua halaman): lencana akrilik, ring besi, dan kunci mobil berayun seperti bandul; kursor
+  mendorong, klik lencana memutar, klik kunci = lampu hazard berkedip.
+- Menu HP terbuka sebagai segi enam dari tombol menu.
 
-## 📂 Struktur Direktori
+Loop animasi tidur saat tidak ada yang bergerak; resolusi kanvas turun sendiri di perangkat lemah; kanvas WebGL diganti
+dengan aman di WebKit (Safari iPhone). Gerak dikurangi dan hemat data dihormati.
 
-```text
-driveelite/
-├── css/
-│   └── styles.css       # File utama untuk semua styling
-├── js/
-│   └── main.js          # File utama untuk semua logika interaktif
-└── index.html           # Struktur halaman utama (Single Page Application feel)
+## Membangun
+
+```bash
+node bangun.mjs                 # src/ -> public/**/index.html, sitemap.xml, robots.txt, 404.html, site.webmanifest
+python -I alat/foto.py --cek    # foto armada -> public/assets/armada/*.webp (+ sumber-foto/cek-armada.png)
+python -I alat/logo.py          # lencana, favicon, apple-touch-icon dari sumber-foto/logo/twh-asli.png
+python -I alat/peta.py          # peta titik Jawa -> src/peta.json
+python -I alat/og.py            # gambar bagikan 1200x630 per halaman (jalankan node bangun.mjs lagi sesudahnya)
 ```
 
-## 🚀 Cara Menjalankan Secara Lokal
+Hasil di `public/` ikut di-commit. Vercel (proyek `driveelite`) menyajikan `public/` apa adanya (`vercel.json`:
+`outputDirectory`, URL tanpa `.html`, garis miring di akhir, header keamanan dan cache). Push ke `main` = tayang.
 
-Karena proyek ini menggunakan HTML, CSS, dan JavaScript statis murni, Anda tidak perlu menginstal *dependencies* yang rumit.
+### Foto armada
 
-1. **Clone repositori ini** (jika menggunakan Git) atau unduh folder proyek.
-2. **Buka file `index.html`** langsung di browser web Anda (Chrome, Safari, Firefox, Edge).
-   - *Alternatif:* Gunakan ekstensi seperti **Live Server** di VS Code untuk pengalaman pengembangan (*hot-reload*) yang lebih baik.
+Foto asli klien berlatar putih ada di `sumber-foto/armada/*.jpeg`; `alat/foto.py` membuang latarnya. Foto yang latarnya
+sudah bening (PNG) bisa diletakkan sebagai `sumber-foto/armada/<slug>.png` (mis. `toyota-alphard.png`) dan dipakai apa
+adanya. Setelah mengganti foto: jalankan `alat/foto.py`, periksa titik lampu depan (`lampu` di `src/data.mjs`, pecahan
+lebar dan tinggi gambar hasil), lalu `alat/og.py` dan `node bangun.mjs`.
 
-## 🌐 Panduan Deployment (Hosting) ke Vercel
+## SEO
 
-Website ini sangat cocok di-*hosting* secara gratis menggunakan Vercel. Berikut langkah-langkahnya:
+- Judul (maks. ~60 huruf) dan deskripsi (maks. ~160 huruf) unik di setiap halaman, satu H1, kanonis absolut,
+  `robots: index, follow, max-image-preview:large`.
+- Data terstruktur JSON-LD di setiap halaman: `WebSite`, `AutoRental`/`LocalBusiness` (alamat, koordinat, jam 24/7,
+  rentang harga, cara bayar, kota yang dilayani), `WebPage` + `BreadcrumbList`; `Product`/`Car` dengan `Offer`
+  harga per hari (`LeaseOut`) di halaman mobil; `FAQPage` di Cara Sewa; `Service` di halaman kota dan layanan;
+  `ItemList` armada. Rating 4,9 hanya tampil sebagai teks (ulasan dari situs sendiri tidak boleh jadi rich result).
+- `sitemap.xml` (19 halaman + gambar mobil) dan `robots.txt` yang mengizinkan semua (situs lama memblokir CSS, JS, dan
+  foto, sehingga Google tidak bisa merender halaman).
+- Gambar bagikan Open Graph/Twitter 1200x630 per halaman, `site.webmanifest`, ikon.
+- Kinerja: gambar WebP dengan `srcset`, gambar terbesar di-preload, font sendiri di-preload, JS `defer`, peta Google baru
+  dimuat saat diklik. Situs tidak memuat skrip pihak ketiga.
+- Verifikasi Google Search Console memakai meta tag (tetap ada di setiap halaman). Berkas `googledcb66fdccfa9a7aa.html`
+  tetap ada, tetapi dengan URL tanpa `.html` alamatnya dialihkan; pakai metode meta tag.
 
-### Opsi 1: Menggunakan GitHub (Direkomendasikan)
-1. Buat repositori baru di [GitHub](https://github.com/).
-2. *Upload* semua file (`index.html`, folder `css`, folder `js`) ke repositori tersebut.
-3. Kunjungi [Vercel](https://vercel.com/) dan buat akun/login menggunakan GitHub Anda.
-4. Klik tombol **"Add New"** > **"Project"**.
-5. Impor repositori GitHub yang baru Anda buat.
-6. Biarkan *Framework Preset* pada opsi **"Other"**.
-7. Klik **"Deploy"**. Dalam beberapa detik, website Anda akan *live* dengan URL khusus dari Vercel!
+### Langkah setelah tayang (pemilik)
 
-### Opsi 2: Menggunakan Vercel CLI
-1. Pastikan Anda sudah menginstal [Node.js](https://nodejs.org/).
-2. Instal Vercel CLI via terminal: `npm i -g vercel`.
-3. Buka terminal, arahkan ke folder proyek `driveelite`.
-4. Jalankan perintah: `vercel`.
-5. Ikuti petunjuk di terminal (pilih `Y` untuk *set up* dan *deploy*, lalu biarkan pengaturan default).
-6. Selesai! Link *live* akan muncul di terminal Anda.
+1. Search Console: kirim `https://twhrentcar.vercel.app/sitemap.xml`, minta pengindeksan ulang beranda.
+2. Google Business Profile: pastikan nama, alamat, nomor sama persis dengan situs, isi tautan situs, unggah foto armada.
+3. Sangat disarankan domain sendiri (mis. `twhrentcar.com` atau `.id`): ganti `SITUS` di `src/data.mjs`, tambahkan domain
+   di Vercel, dan alihkan `twhrentcar.vercel.app` ke domain baru.
 
-## 📞 Kontak & Support
+## Pertanyaan untuk klien
 
-Untuk pertanyaan bisnis, kerjasama, atau bantuan teknis:
-- **WhatsApp**: [+62 811 1688 303](https://wa.me/628111688303)
-- **Instagram**: @driveelite.id (TBD)
-- **Alamat**: Jl. Raya Kebun Jeruk No. 10, Jakarta Barat 11530
-
----
-*Dibuat dengan ❤️ untuk pengalaman berkendara terbaik di Indonesia.*
+1. Foto armada yang lebih tajam dan berlatar bening (foto saat ini kecil, Fortuner hanya 312 px; Elf terpotong dan
+   latarnya abu-abu).
+2. Tersedia **lepas kunci** dan/atau **dengan sopir**? Bus dan minibus pasti dengan sopir? Harga termasuk sopir dan BBM?
+3. Harga: situs lama menulis "mulai Rp350.000" dan "bus besar Rp2.500.000" di FAQ, padahal daftar harga Avanza Rp450.000
+   dan Big Bus Rp3.500.000. Situs baru memakai daftar harga per mobil.
+4. Mobil apa saja yang tersedia di Malang dan Surabaya? Alamat titik ambil di kedua kota?
+5. Tautan Google Business Profile, Instagram, TikTok (situs lama berisi tautan media sosial kosong; sekarang dihapus).
+6. Jumlah ulasan dan rating Google terbaru (situs memakai 4,9 dari 23 ulasan). Ulasan contoh dari template lama (Tesla,
+   Range Rover, Lamborghini, Mercedes) sudah dihapus karena mobil itu tidak ada di armada.
+7. Besar deposit, biaya antar per kota, dan koordinat garasi yang tepat (dari Google Maps).
