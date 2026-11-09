@@ -30,7 +30,7 @@ p{margin-top:26px;font-size:24px;line-height:1.4;color:#3E5462}
 .pita{position:absolute;left:0;right:0;bottom:0;height:10px;background:linear-gradient(90deg,#1B4766 0 70%,#90D0BF 70%)}
 </style></head><body>
 <div class="teks"><div class="merek"><img src="/assets/logo/lencana.webp" alt="">TWH Rent Car</div><h1>{judul}</h1><p>{sub}</p></div>
-<div class="url">twhrentcar.vercel.app</div>
+<div class="url">twhrentcar.arswordlab.com</div>
 <div class="mobil"><img src="/assets/armada/{mobil}.webp" alt=""></div><div class="pita"></div>
 </body></html>"""
 

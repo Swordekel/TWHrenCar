@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://twhrentcar.vercel.app/sitemap.xml
+Sitemap: https://twhrentcar.arswordlab.com/sitemap.xml

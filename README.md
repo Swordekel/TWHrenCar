@@ -1,6 +1,7 @@
 # TWH Rent Car
 
-Situs rental mobil dan bus **TWH Rent Car** (Jakarta, Malang, Surabaya, sejak 2017): https://twhrentcar.vercel.app
+Situs rental mobil dan bus **TWH Rent Car** (Jakarta, Malang, Surabaya, sejak 2017): https://twhrentcar.arswordlab.com
+(sejak 2026-11-09; alamat lama https://twhrentcar.vercel.app mengalihkan setiap halaman ke sini).
 Dibuat ulang oleh ARSWORD pada November 2026 dengan gaya situs ARSWORD lain (Nila Merah, Bengkel Nusantara):
 satu huruf (Archivo), warna dari lencana klien (mint `#90D0BF`, navy `#1B4766`), efek WebGL, dan SEO lengkap.
 
@@ -46,8 +47,22 @@ python -I alat/peta.py          # peta titik Jawa -> src/peta.json
 python -I alat/og.py            # gambar bagikan 1200x630 per halaman (jalankan node bangun.mjs lagi sesudahnya)
 ```
 
-Hasil di `public/` ikut di-commit. Vercel (proyek `driveelite`) menyajikan `public/` apa adanya (`vercel.json`:
-`outputDirectory`, URL tanpa `.html`, garis miring di akhir, header keamanan dan cache). Push ke `main` = tayang.
+Hasil di `public/` ikut di-commit.
+
+### Hosting
+
+- **Cloudflare Workers** (akun arswordlab.com), Worker `twhrentcar`, rute `twhrentcar.arswordlab.com/*` (`wrangler.jsonc`):
+  menyajikan `public/` apa adanya (URL tanpa `.html`, garis miring di akhir, halaman 404). Header keamanan dan cache di
+  `public/_headers`, pengalihan foto lama `/pictcar/*` di `public/_redirects`. `worker/index.js` hanya mengalihkan
+  `http://` ke `https://`.
+- Deploy: push ke `main` di GitHub dulu, lalu dari folder ini
+  `node ../ARSWORDLAB/arsword-pos/node_modules/wrangler/bin/wrangler.js deploy` (sampai Workers Builds disambungkan
+  di dasbor Cloudflare; sesudah itu push ke `main` = tayang).
+- **Vercel** (proyek `driveelite`, masih tersambung ke repo): `vercel.json` hanya mengalihkan permanen (301) setiap
+  alamat `twhrentcar.vercel.app/...` ke alamat yang sama di `twhrentcar.arswordlab.com`, dengan query-nya.
+- Kenapa pindah: di alamat `*.vercel.app` Google menampilkan "Vercel" sebagai nama situs di hasil pencarian (nama
+  domain induk). Di subdomain arswordlab.com Google bisa menampilkan "arswordlab.com" atau
+  "twhrentcar.arswordlab.com" sampai ia memakai nama merek. Nama "TWH Rent Car" baru pasti dengan domain sendiri.
 
 ### Foto armada
 
@@ -63,7 +78,12 @@ lebar dan tinggi gambar hasil), lalu `alat/og.py` dan `node bangun.mjs`.
 - Data terstruktur JSON-LD di setiap halaman: `WebSite`, `AutoRental`/`LocalBusiness` (alamat, koordinat, jam 24/7,
   rentang harga, cara bayar, kota yang dilayani), `WebPage` + `BreadcrumbList`; `Product`/`Car` dengan `Offer`
   harga per hari (`LeaseOut`) di halaman mobil; `FAQPage` di Cara Sewa; `Service` di halaman kota dan layanan;
-  `ItemList` armada. Rating 4,9 hanya tampil sebagai teks (ulasan dari situs sendiri tidak boleh jadi rich result).
+  `ItemList` armada. Rating (sama dengan Google Business Profile: 5,0 dari 22 ulasan, dicek 2026-11-09) hanya tampil
+  sebagai teks (ulasan dari situs sendiri tidak boleh jadi rich result). `sameAs` bisnis: Instagram @twh_rentcar.
+- Nama situs: `WebSite` name "TWH Rent Car", alternateName "TWHRENTCAR", "TWH Car Rental", lalu alamatnya (huruf kecil,
+  saran Google untuk subdomain); `og:site_name`, `application-name`, dan manifest memakai nama yang sama.
+- `data-nosnippet` pada lambang tersembunyi, tautan "Langsung ke isi", dan isi kepala halaman, supaya cuplikan Google
+  tidak dimulai dengan "TWH Langsung ke isi. TWH Rent Car Armada Layanan ...".
 - `sitemap.xml` (19 halaman + gambar mobil) dan `robots.txt` yang mengizinkan semua (situs lama memblokir CSS, JS, dan
   foto, sehingga Google tidak bisa merender halaman).
 - Gambar bagikan Open Graph/Twitter 1200x630 per halaman, `site.webmanifest`, ikon.
@@ -74,10 +94,13 @@ lebar dan tinggi gambar hasil), lalu `alat/og.py` dan `node bangun.mjs`.
 
 ### Langkah setelah tayang (pemilik)
 
-1. Search Console: kirim `https://twhrentcar.vercel.app/sitemap.xml`, minta pengindeksan ulang beranda.
-2. Google Business Profile: pastikan nama, alamat, nomor sama persis dengan situs, isi tautan situs, unggah foto armada.
-3. Sangat disarankan domain sendiri (mis. `twhrentcar.com` atau `.id`): ganti `SITUS` di `src/data.mjs`, tambahkan domain
-   di Vercel, dan alihkan `twhrentcar.vercel.app` ke domain baru.
+1. Search Console: properti Domain `arswordlab.com` sudah mencakup alamat baru. Kirim
+   `https://twhrentcar.arswordlab.com/sitemap.xml`, minta pengindeksan beranda, dan di properti lama
+   `https://twhrentcar.vercel.app/` pakai **Perubahan alamat** (Setelan) ke `https://twhrentcar.arswordlab.com/`.
+2. Google Business Profile: ganti tautan situs ke `https://twhrentcar.arswordlab.com/`; pastikan nama, alamat, nomor
+   sama persis dengan situs, unggah foto armada. Tautan di bio Instagram juga diganti.
+3. Tetap disarankan domain sendiri (mis. `twhrentcar.com` atau `.id`) supaya nama situs di Google pasti "TWH Rent Car":
+   ganti `SITUS` di `src/data.mjs`, tambahkan domain sebagai Custom Domain Worker, dan alihkan alamat lama ke sana.
 
 ## Pertanyaan untuk klien
 
@@ -88,6 +111,6 @@ lebar dan tinggi gambar hasil), lalu `alat/og.py` dan `node bangun.mjs`.
    dan Big Bus Rp3.500.000. Situs baru memakai daftar harga per mobil.
 4. Mobil apa saja yang tersedia di Malang dan Surabaya? Alamat titik ambil di kedua kota?
 5. Tautan Google Business Profile, Instagram, TikTok (situs lama berisi tautan media sosial kosong; sekarang dihapus).
-6. Jumlah ulasan dan rating Google terbaru (situs memakai 4,9 dari 23 ulasan). Ulasan contoh dari template lama (Tesla,
+6. Jumlah ulasan dan rating Google terbaru (situs memakai 5,0 dari 22 ulasan, sesuai panel Google 2026-11-09). Ulasan contoh dari template lama (Tesla,
    Range Rover, Lamborghini, Mercedes) sudah dihapus karena mobil itu tidak ada di armada.
 7. Besar deposit, biaya antar per kota, dan koordinat garasi yang tepat (dari Google Maps).

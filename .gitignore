@@ -4,3 +4,4 @@ node_modules/
 __pycache__/
 sumber-foto/cek-*.png
 sumber-foto/grid-*.png
+.wrangler/

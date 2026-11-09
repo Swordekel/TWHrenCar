@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "TWH Rent Car, rental mobil dan bus di Jakarta, Malang, dan Surabaya (twhrentcar.vercel.app). Dibuat ulang oleh ARSWORD.",
+  "description": "TWH Rent Car, rental mobil dan bus di Jakarta, Malang, dan Surabaya (twhrentcar.arswordlab.com). Dibuat ulang oleh ARSWORD.",
   "scripts": {
     "bangun": "node bangun.mjs"
   }

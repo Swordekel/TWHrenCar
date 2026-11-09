@@ -2,7 +2,7 @@
 // Halaman = kepala dokumen (SEO lengkap: judul, deskripsi, kanonis, Open Graph, data terstruktur JSON-LD) + intro
 // (beranda) + kepala + menu HP + isi (src/halaman/<templat>.mjs) + kaki + lembar pesan + tombol WhatsApp.
 // Juga menulis sitemap.xml, robots.txt, 404.html, dan src/og.json (daftar gambar bagikan untuk alat/og.py).
-// Hasilnya (public/**) ikut di-commit: Vercel menyajikan folder public/ apa adanya (lihat vercel.json).
+// Hasilnya (public/**) ikut di-commit: Worker Cloudflare menyajikan folder public/ apa adanya (lihat wrangler.jsonc).
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -92,8 +92,12 @@ const BISNIS = {
   areaServed: KOTA.map((k) => ({ '@type': 'City', name: k.nama })),
   contactPoint: { '@type': 'ContactPoint', telephone: KONTAK.teleponIntl, contactType: 'customer service', areaServed: 'ID', availableLanguage: ['Indonesian'] },
   knowsLanguage: 'id',
+  sameAs: [KONTAK.instagram],
 };
-const SITUS_LD = { '@type': 'WebSite', '@id': SITUS_ID, url: url('/'), name: NAMA, alternateName: 'TWHRENTCAR', inLanguage: 'id-ID', publisher: { '@id': BISNIS_ID } };
+// Nama situs di hasil Google: name dulu, lalu alternateName. Alamat (huruf kecil) paling akhir: saran Google bila nama
+// merek belum dipakai, supaya yang tampil alamat situs ini, bukan nama domain induk (arswordlab.com).
+const SITUS_LD = { '@type': 'WebSite', '@id': SITUS_ID, url: url('/'), name: NAMA, alternateName: ['TWHRENTCAR', 'TWH Car Rental', new URL(SITUS).host],
+  inLanguage: 'id-ID', publisher: { '@id': BISNIS_ID } };
 const tawaran = (m) => ({
   '@type': 'Offer', url: url(`/armada/${m.slug}/`), price: m.harga, priceCurrency: 'IDR', availability: 'https://schema.org/InStock',
   businessFunction: 'http://purl.org/goodrelations/v1#LeaseOut', seller: { '@id': BISNIS_ID },
@@ -211,6 +215,8 @@ async function render(h) {
 <meta name="google-site-verification" content="9gL2tKgtHNhdStXDPxCgOnIVfQBGf971LLXL4w3vFeE">
 <meta property="og:type" content="${h.mobil ? 'product' : 'website'}">
 <meta property="og:site_name" content="${NAMA}">
+<meta name="application-name" content="${NAMA}">
+<meta name="apple-mobile-web-app-title" content="${NAMA}">
 <meta property="og:locale" content="id_ID">
 <meta property="og:title" content="${esc(h.judul.replace(/ \| TWH Rent Car$/, ''))}">
 <meta property="og:description" content="${esc(h.deskripsi)}">
@@ -236,12 +242,12 @@ ${pramuat}<link rel="stylesheet" href="/styles.css?v=${versi('styles.css')}">
 <script type="application/ld+json">${jsonld(h, remah)}</script>
 </head>
 <body data-halaman="${h.templat}">
-${beranda ? INTRO + '\n' : ''}${SPRITE}
-<a class="lewati" href="#isi">Langsung ke isi</a>
+${beranda ? INTRO + '\n' : ''}<div data-nosnippet>${SPRITE}
+<a class="lewati" href="#isi">Langsung ke isi</a></div>
 <canvas id="latar" aria-hidden="true"></canvas>
 
 <header class="kepala di-hero" id="kepala">
-  <div class="kepala-isi">
+  <div class="kepala-isi" data-nosnippet>
     <a class="logo" href="/" aria-label="TWH Rent Car, beranda">${LOGO()}<span class="logo-nama">TWH Rent Car</span></a>
     <nav class="nav" aria-label="Navigasi utama">
       ${nav.map(navTautan(h)).join('\n      ')}

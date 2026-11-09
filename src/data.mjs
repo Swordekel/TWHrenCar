@@ -3,9 +3,11 @@
 // Sumber isi: situs lama klien (index.html + js/main.js di riwayat git: harga, kursi, transmisi, unit per kota, syarat
 // dokumen, cara bayar, alamat, nomor WhatsApp). Hal yang belum pasti ada di README (Pertanyaan untuk klien).
 
-export const SITUS = 'https://twhrentcar.vercel.app';
+// Sejak 2026-11-09 di Cloudflare (wrangler.jsonc); twhrentcar.vercel.app mengalihkan setiap alamat ke sini (vercel.json).
+// Di alamat *.vercel.app Google menampilkan "Vercel" sebagai nama situs (nama domain induk).
+export const SITUS = 'https://twhrentcar.arswordlab.com';
 export const NAMA = 'TWH Rent Car';
-export const DIPERBARUI = '2026-11-04'; // lastmod sitemap
+export const DIPERBARUI = '2026-11-09'; // lastmod sitemap
 
 export const KONTAK = {
   wa: '6281290608190',
@@ -23,9 +25,12 @@ export const KONTAK = {
   berdiri: '2017',
   jam: 'Buka 24 jam, Senin sampai Minggu',
   bayar: ['Transfer bank', 'GoPay', 'OVO', 'DANA', 'Tunai'],
+  // akun resmi yang sama di panel Google (lencana TWH yang sama); sameAs di data terstruktur bisnis
+  instagram: 'https://www.instagram.com/twh_rentcar/',
 };
 
-export const STATISTIK = { armada: 50, kota: 3, rating: '4,9', ulasan: 23, pelanggan: 1000 };
+// rating dan jumlah ulasan sama dengan panel Google Business Profile (dicek 2026-11-09: 5,0 dari 22 ulasan)
+export const STATISTIK = { armada: 50, kota: 3, rating: '5,0', ulasan: 22, pelanggan: 1000 };
 
 // kelas armada (filter di /armada/ dan di beranda)
 export const KELAS = [

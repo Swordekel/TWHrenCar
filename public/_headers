@@ -1,0 +1,23 @@
+# semua halaman dan berkas (Cloudflare Workers static assets; dulu bagian "headers" di vercel.json).
+# cloudflareinsights: beacon Web Analytics yang bisa disisipkan Cloudflare. Peta Google dimuat saat diklik (frame-src).
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; frame-src https://www.google.com https://maps.google.com; connect-src 'self' https://cloudflareinsights.com; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'self'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  X-Frame-Options: SAMEORIGIN
+
+# gambar memakai penanda versi ?v= dari isi berkas (bangun.mjs), begitu juga styles.css dan app.js
+/assets/*
+  Cache-Control: public, max-age=2592000
+
+/styles.css
+  Cache-Control: public, max-age=2592000
+
+/app.js
+  Cache-Control: public, max-age=2592000
+
+# font tidak pernah berubah isinya (nama berkas baru bila diganti)
+/assets/font/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable

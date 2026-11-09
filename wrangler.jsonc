@@ -1,0 +1,27 @@
+// TWH Rent Car di Cloudflare Workers pada twhrentcar.arswordlab.com (sejak 2026-11-09; sebelumnya Vercel, yang kini
+// hanya mengalihkan twhrentcar.vercel.app ke sini, lihat vercel.json). Tanpa langkah build di server: situsnya berkas
+// biasa di ./public (node bangun.mjs, hasilnya ikut di-commit). Akun Cloudflare: milik arswordlab.com.
+// Deploy: push ke main di GitHub (Swordekel/TWHrenCar) dulu, lalu dari folder ini:
+//   node ../ARSWORDLAB/arsword-pos/node_modules/wrangler/bin/wrangler.js deploy
+{
+  "name": "twhrentcar",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-01",
+  // rute di bawah adalah satu-satunya alamat situs
+  "workers_dev": false,
+  "preview_urls": false,
+  // Worker "arswordlab" (arswordlab.com) menjawab *.arswordlab.com/* untuk situs template ARSWORD. Rute ini menyebut
+  // alamatnya persis, dan rute yang paling spesifik yang menang. Nama ini juga dicadangkan di ARSWORD (RESERVED di
+  // worker/sites.js).
+  "routes": [{ "pattern": "twhrentcar.arswordlab.com/*", "zone_name": "arswordlab.com" }],
+  // berkas statis saja: formulir pesan membuka WhatsApp di perangkat pengunjung, jadi tidak ada server yang menerima data
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    // Worker hanya untuk halaman (pengalihan http:// ke https://); gambar, font, CSS, dan JS langsung dari aset
+    "run_worker_first": ["/*", "!/assets/*", "!/styles.css", "!/app.js", "!/favicon.png", "!/apple-touch-icon.png"]
+  },
+  "observability": { "enabled": true }
+}
