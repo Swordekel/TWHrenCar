@@ -192,7 +192,8 @@ export const ULASAN = [
 // halaman. kunci = berkas src/halaman/<templat>.mjs. foto = mobil di gambar bagikan (og) halaman itu.
 const H = [
   { kunci: 'beranda', templat: 'beranda', path: '/', nav: null, foto: 'toyota-alphard',
-    judul: 'Sewa Mobil & Bus di Jakarta, Malang, Surabaya | TWH Rent Car',
+    // beranda diawali nama merek (sinyal nama situs untuk Google; Google sendiri menulis ulang judulnya begini)
+    judul: 'TWH Rent Car: Sewa Mobil & Bus di Jakarta, Malang, Surabaya',
     deskripsi: 'Rental mobil TWH Rent Car sejak 2017: Avanza, Innova, Alphard, Hiace, sampai bus pariwisata. Diantar ke hotel dan bandara, buka 24 jam. Pesan lewat WhatsApp.',
     og: 'Sewa mobil, diantar ke depan pintu.' },
   { kunci: 'armada', templat: 'armada', path: '/armada/', nav: 'Armada', foto: 'toyota-innova-zenix',

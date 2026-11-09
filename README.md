@@ -80,8 +80,10 @@ lebar dan tinggi gambar hasil), lalu `alat/og.py` dan `node bangun.mjs`.
   harga per hari (`LeaseOut`) di halaman mobil; `FAQPage` di Cara Sewa; `Service` di halaman kota dan layanan;
   `ItemList` armada. Rating (sama dengan Google Business Profile: 5,0 dari 22 ulasan, dicek 2026-11-09) hanya tampil
   sebagai teks (ulasan dari situs sendiri tidak boleh jadi rich result). `sameAs` bisnis: Instagram @twh_rentcar.
-- Nama situs: `WebSite` name "TWH Rent Car", alternateName "TWHRENTCAR", "TWH Car Rental", lalu alamatnya (huruf kecil,
-  saran Google untuk subdomain); `og:site_name`, `application-name`, dan manifest memakai nama yang sama.
+- Nama situs: `WebSite` name "TWH Rent Car", alternateName "TWHRENTCAR", "TWH Car Rental" (sengaja tanpa alamat situs
+  sebagai cadangan, supaya Google tidak didorong menampilkan alamat); judul beranda diawali "TWH Rent Car";
+  `og:site_name`, `application-name`, dan manifest memakai nama yang sama. Pemilik memilih tetap di subdomain
+  (2026-11-09), jadi Google tetap bisa menampilkan "arswordlab.com" sampai ia yakin dengan nama merek.
 - `data-nosnippet` pada lambang tersembunyi, tautan "Langsung ke isi", dan isi kepala halaman, supaya cuplikan Google
   tidak dimulai dengan "TWH Langsung ke isi. TWH Rent Car Armada Layanan ...".
 - `sitemap.xml` (19 halaman + gambar mobil) dan `robots.txt` yang mengizinkan semua (situs lama memblokir CSS, JS, dan

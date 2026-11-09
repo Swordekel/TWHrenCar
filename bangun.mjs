@@ -94,9 +94,10 @@ const BISNIS = {
   knowsLanguage: 'id',
   sameAs: [KONTAK.instagram],
 };
-// Nama situs di hasil Google: name dulu, lalu alternateName. Alamat (huruf kecil) paling akhir: saran Google bila nama
-// merek belum dipakai, supaya yang tampil alamat situs ini, bukan nama domain induk (arswordlab.com).
-const SITUS_LD = { '@type': 'WebSite', '@id': SITUS_ID, url: url('/'), name: NAMA, alternateName: ['TWHRENTCAR', 'TWH Car Rental', new URL(SITUS).host],
+// Nama situs di hasil Google: name dulu, lalu alternateName. Sengaja tanpa alamat situs sebagai cadangan (saran Google
+// untuk subdomain): di Uncle Ren cadangan itu yang dipakai Google, bukan nama merek. Pemilik 2026-11-09: nama yang
+// diinginkan "TWH Rent Car", tetap di subdomain arswordlab.com (tanpa domain sendiri).
+const SITUS_LD = { '@type': 'WebSite', '@id': SITUS_ID, url: url('/'), name: NAMA, alternateName: ['TWHRENTCAR', 'TWH Car Rental'],
   inLanguage: 'id-ID', publisher: { '@id': BISNIS_ID } };
 const tawaran = (m) => ({
   '@type': 'Offer', url: url(`/armada/${m.slug}/`), price: m.harga, priceCurrency: 'IDR', availability: 'https://schema.org/InStock',
