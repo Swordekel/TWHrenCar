@@ -716,7 +716,7 @@
   }
   const kartuSimpan = (d) => (d ? `<div class="simpan-r2">
       <div class="sr-angka"><span><small>Terpakai</small><b>${esc(ukuranBita(d.bita))}</b><em>${d.objek} berkas (foto besar dan kecil)</em></span><span><small>Perkiraan biaya</small><b>${esc(rupiahKecil(d.rupiah))}</b><em>per bulan</em></span></div>
-      <div class="catatan">${ic('info')}<span>Tarif Cloudflare R2: $${String(d.usdPerGb).replace('.', ',')} per GB per bulan (sekitar ${esc(rpR2(d.rupiahPerGb))} per GB, ${esc(d.kursKet)}: ${esc(rpR2(d.kurs))} per dolar). ${d.gratisGb} GB pertama tiap bulan gratis untuk seluruh akun Cloudflare ARSWORD, dipakai bersama semua situs, jadi ${d.gb < d.gratisGb ? 'situs ini saat ini tidak menambah tagihan' : 'bagian di atas jatah gratis ditagih'}. Membuka foto (data keluar) tidak dikenai biaya.</span></div>
+      <div class="catatan">${ic('info')}<span>Tarif Cloudflare R2: $${String(d.usdPerGb).replace('.', ',')} per GB per bulan (sekitar ${esc(rpR2(d.rupiahPerGb))} per GB, ${esc(d.kursKet)}: ${esc(rpR2(d.kurs))} per dolar). Membuka foto (data keluar) tidak dikenai biaya.</span></div>
     </div>` : UI.empty('Penyimpanan belum bisa dihitung', 'Coba muat ulang halaman ini.'));
   function pFoto() {
     LAYAR.setelah = async (root) => {
@@ -936,7 +936,7 @@
         <li id="db-simpan"><span class="al-ic">${ic('database')}</span><div><b>Penyimpanan foto (R2)</b><small>Menghitung…</small></div><button type="button" class="al-go light" data-go="#C:/Program Files/Git/foto">Foto</button></li>
       </ul></section>`;
     LAYAR.setelah = async () => {
-      muatSimpan().then((d) => { const el = $('#db-simpan'); if (el && d) el.querySelector('div').innerHTML = `<b>Penyimpanan foto: ${esc(ukuranBita(d.bita))}</b><small>${esc(rupiahKecil(d.rupiah))} per bulan · ${d.gb < d.gratisGb ? 'masih dalam jatah gratis' : 'di atas jatah gratis'}</small>`; else if (el) el.querySelector('small').textContent = 'Belum bisa dihitung'; });
+      muatSimpan().then((d) => { const el = $('#db-simpan'); if (el && d) el.querySelector('div').innerHTML = `<b>Penyimpanan foto: ${esc(ukuranBita(d.bita))}</b><small>${esc(rupiahKecil(d.rupiah))} per bulan</small>`; else if (el) el.querySelector('small').textContent = 'Belum bisa dihitung'; });
       try {
         const d = await api('riwayat');
         const el = $('#db-akt');
