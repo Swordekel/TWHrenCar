@@ -1,5 +1,6 @@
-// TWH Rent Car di Cloudflare Workers pada twhrentcar.arswordlab.com (sejak 2026-11-09; sebelumnya Vercel, yang kini
-// hanya mengalihkan twhrentcar.vercel.app ke sini, lihat vercel.json). Akun Cloudflare: milik arswordlab.com.
+// TWH Rent Car di Cloudflare Workers pada domainnya sendiri twhrentcar.com (sejak 2026-11-12; 2026-11-09 s.d. 11-12 di
+// twhrentcar.arswordlab.com, sebelumnya Vercel, yang kini hanya mengalihkan twhrentcar.vercel.app ke sini, lihat
+// vercel.json). Akun Cloudflare: milik arswordlab.com (zona twhrentcar.com ada di akun yang sama).
 // Halaman dirakit Worker dari isi panel admin (D1); halaman statis di ./public (node bangun.mjs, hasilnya ikut di-commit)
 // adalah cadangannya. Deploy: push ke main di GitHub (Swordekel/TWHrenCar) dulu, lalu dari folder ini:
 //   node bangun.mjs
@@ -11,10 +12,16 @@
   // rute di bawah adalah satu-satunya alamat situs
   "workers_dev": false,
   "preview_urls": false,
-  // Worker "arswordlab" (arswordlab.com) menjawab *.arswordlab.com/* untuk situs template ARSWORD. Rute ini menyebut
-  // alamatnya persis, dan rute yang paling spesifik yang menang. Nama ini juga dicadangkan di ARSWORD (RESERVED di
-  // worker/sites.js).
-  "routes": [{ "pattern": "twhrentcar.arswordlab.com/*", "zone_name": "arswordlab.com" }],
+  // twhrentcar.com dan www sebagai custom domain (Cloudflare membuat DNS dan sertifikatnya sendiri). www dan alamat lama
+  // twhrentcar.arswordlab.com tetap dijawab Worker ini, lalu dialihkan 301 ke twhrentcar.com (worker/http.js
+  // alamatKanon), supaya tautan lama, Google, dan profil bisnis tetap sampai. Worker "arswordlab" (arswordlab.com)
+  // menjawab *.arswordlab.com/* untuk situs template ARSWORD; rute lama ini menyebut alamatnya persis, dan rute yang paling
+  // spesifik yang menang. Nama twhrentcar juga tetap dicadangkan di ARSWORD (RESERVED di worker/sites.js).
+  "routes": [
+    { "pattern": "twhrentcar.com", "custom_domain": true },
+    { "pattern": "www.twhrentcar.com", "custom_domain": true },
+    { "pattern": "twhrentcar.arswordlab.com/*", "zone_name": "arswordlab.com" }
+  ],
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
@@ -42,7 +49,7 @@
     // akun pembuat (ARSWORD): selalu bisa masuk, mengelola akun admin dan pengaturan teknis; dipisah koma
     "PEMBUAT": "swordekel@gmail.com",
     "MAIL_FROM": "masuk@arswordlab.com",
-    "SITUS": "https://twhrentcar.arswordlab.com"
+    "SITUS": "https://twhrentcar.com"
   },
   "observability": { "enabled": true }
 }

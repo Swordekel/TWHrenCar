@@ -50,7 +50,7 @@ export function kirimKode(env, ke, kode) {
 }
 
 export function kirimUndangan(env, ke, { nama, oleh, situs }) {
-  const url = `${situs || 'https://twhrentcar.arswordlab.com'}/admin/`;
+  const url = `${situs || 'https://twhrentcar.com'}/admin/`;
   const baris = [
     `Halo${nama ? ' ' + nama : ''}, ${oleh || 'ARSWORD'} menambahkan email ini sebagai admin situs TWH Rent Car.`,
     `Buka ${url}, ketik email ini, lalu masukkan kode 6 angka yang kami kirim. Tidak perlu kata sandi.`,

@@ -1,4 +1,4 @@
-/* Panel admin TWH Rent Car (twhrentcar.arswordlab.com/admin/). Mesin panel dari panel Silibet Kreasi Indonesia.
+/* Panel admin TWH Rent Car (twhrentcar.com/admin/). Mesin panel dari panel Silibet Kreasi Indonesia.
  *
  * Satu halaman dengan hash router, di atas template dasbor "Kaca": NM.u (util), NM.ic (ikon), NM.ui / NM.f (komponen),
  * NM.sheet / NM.toast / NM.confirm, dan controls.js (dropdown + kalender). Semua data lewat Worker (/admin/api/*):

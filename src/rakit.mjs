@@ -182,7 +182,7 @@ function alatLengkap(alat) {
     const besar = `/assets/armada/${nama}.webp?v=${versi(`assets/armada/${nama}.webp`)}`, kecil = `/assets/armada/${nama}-720.webp?v=${versi(`assets/armada/${nama}-720.webp`)}`;
     return { w: u.w, h: u.h, besar, kecil, polos: `/assets/armada/${nama}.webp`, set: `${kecil} 720w, ${besar} 1400w`, jenis: 'image/webp' };
   };
-  return { ...alat, infoFoto, situs: alat.situs || 'https://twhrentcar.arswordlab.com', diperbarui: alat.diperbarui || '2026-11-09' };
+  return { ...alat, infoFoto, situs: alat.situs || 'https://twhrentcar.com', diperbarui: alat.diperbarui || '2026-11-09' };
 }
 
 // ---------- satu halaman ----------
@@ -246,9 +246,9 @@ export function rakit(h, isi, alatAwal) {
     knowsLanguage: 'id',
     sameAs: K.instagram ? [K.instagram] : [],
   };
-  // Nama situs di hasil Google: name dulu, lalu alternateName. Sengaja tanpa alamat situs sebagai cadangan (saran Google
-  // untuk subdomain): di Uncle Ren cadangan itu yang dipakai Google, bukan nama merek. Pemilik 2026-11-09: nama yang
-  // diinginkan "TWH Rent Car", tetap di subdomain arswordlab.com (tanpa domain sendiri).
+  // Nama situs di hasil Google: name dulu, lalu alternateName. Sengaja tanpa alamat situs sebagai cadangan: di Uncle Ren
+  // cadangan itu yang dipakai Google, bukan nama merek. Nama yang diinginkan pemilik "TWH Rent Car"; sejak 2026-11-12 di
+  // domain sendiri twhrentcar.com, jadi Google bisa memakai nama merek itu (di subdomain arswordlab.com tidak pasti).
   const SITUS_LD = { '@type': 'WebSite', '@id': SITUS_ID, url: url('/'), name: NAMA, alternateName: ['TWHRENTCAR', 'TWH Car Rental'],
     inLanguage: 'id-ID', publisher: { '@id': BISNIS_ID } };
   const tawaran = (m) => ({

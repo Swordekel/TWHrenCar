@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "outputDirectory": "public",
   "redirects": [
-    { "source": "/", "destination": "https://twhrentcar.arswordlab.com/", "statusCode": 301 },
-    { "source": "/(.*)", "destination": "https://twhrentcar.arswordlab.com/$1", "statusCode": 301 }
+    { "source": "/", "destination": "https://twhrentcar.com/", "statusCode": 301 },
+    { "source": "/(.*)", "destination": "https://twhrentcar.com/$1", "statusCode": 301 }
   ]
 }

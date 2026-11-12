@@ -1,7 +1,8 @@
 # TWH Rent Car
 
-Situs rental mobil dan bus **TWH Rent Car** (Jakarta, Malang, Surabaya, sejak 2017): https://twhrentcar.arswordlab.com
-(sejak 2026-11-09; alamat lama https://twhrentcar.vercel.app mengalihkan setiap halaman ke sini).
+Situs rental mobil dan bus **TWH Rent Car** (Jakarta, Malang, Surabaya, sejak 2017): https://twhrentcar.com
+(domain sendiri sejak 2026-11-12; alamat lama https://twhrentcar.arswordlab.com, 2026-11-09 s.d. 11-12, dan
+https://twhrentcar.vercel.app mengalihkan setiap halaman ke sini).
 Dibuat ulang oleh ARSWORD pada November 2026 dengan gaya situs ARSWORD lain (Nila Merah, Bengkel Nusantara):
 satu huruf (Archivo), warna dari lencana klien (mint `#90D0BF`, navy `#1B4766`), efek WebGL, dan SEO lengkap.
 
@@ -76,7 +77,9 @@ Hasil di `public/` ikut di-commit.
 
 ### Hosting
 
-- **Cloudflare Workers** (akun arswordlab.com), Worker `twhrentcar`, rute `twhrentcar.arswordlab.com/*` (`wrangler.jsonc`):
+- **Cloudflare Workers** (akun arswordlab.com), Worker `twhrentcar`, custom domain `twhrentcar.com` dan
+  `www.twhrentcar.com` plus rute lama `twhrentcar.arswordlab.com/*` (`wrangler.jsonc`). www dan alamat lama dialihkan
+  301 ke `https://twhrentcar.com` dengan jalur dan query yang sama (`worker/http.js` `alamatKanon`, `ALAMAT_LAMA`):
   halaman dari panel admin (D1 `twhrentcar`, R2 `twhrentcar-media`, `send_email`), dengan `public/` sebagai cadangan
   (URL tanpa `.html`, garis miring di akhir, halaman 404). Header keamanan dan cache di `public/_headers` (dan di
   `worker/index.js` untuk halaman yang dirakit Worker), pengalihan foto lama `/pictcar/*` di `public/_redirects`.
@@ -85,10 +88,11 @@ Hasil di `public/` ikut di-commit.
   `node ../ARSWORDLAB/arsword-pos/node_modules/wrangler/bin/wrangler.js deploy` (sampai Workers Builds disambungkan
   di dasbor Cloudflare; sesudah itu push ke `main` = tayang).
 - **Vercel** (proyek `driveelite`, masih tersambung ke repo): `vercel.json` hanya mengalihkan permanen (301) setiap
-  alamat `twhrentcar.vercel.app/...` ke alamat yang sama di `twhrentcar.arswordlab.com`, dengan query-nya.
+  alamat `twhrentcar.vercel.app/...` ke alamat yang sama di `twhrentcar.com`, dengan query-nya (langsung, tanpa
+  lewat alamat lama).
 - Kenapa pindah: di alamat `*.vercel.app` Google menampilkan "Vercel" sebagai nama situs di hasil pencarian (nama
   domain induk). Di subdomain arswordlab.com Google bisa menampilkan "arswordlab.com" atau
-  "twhrentcar.arswordlab.com" sampai ia memakai nama merek. Nama "TWH Rent Car" baru pasti dengan domain sendiri.
+  "twhrentcar.arswordlab.com". Pemilik membeli `twhrentcar.com` (2026-11-12) supaya nama situs bisa "TWH Rent Car".
 
 ### Foto armada
 
@@ -108,8 +112,8 @@ lebar dan tinggi gambar hasil), lalu `alat/og.py` dan `node bangun.mjs`.
   sebagai teks (ulasan dari situs sendiri tidak boleh jadi rich result). `sameAs` bisnis: Instagram @twh_rentcar.
 - Nama situs: `WebSite` name "TWH Rent Car", alternateName "TWHRENTCAR", "TWH Car Rental" (sengaja tanpa alamat situs
   sebagai cadangan, supaya Google tidak didorong menampilkan alamat); judul beranda diawali "TWH Rent Car";
-  `og:site_name`, `application-name`, dan manifest memakai nama yang sama. Pemilik memilih tetap di subdomain
-  (2026-11-09), jadi Google tetap bisa menampilkan "arswordlab.com" sampai ia yakin dengan nama merek.
+  `og:site_name`, `application-name`, dan manifest memakai nama yang sama. Sejak 2026-11-12 di domain sendiri
+  `twhrentcar.com`, jadi Google bisa memakai nama merek itu (biasanya beberapa minggu setelah Google membaca ulang).
 - `data-nosnippet` pada lambang tersembunyi, tautan "Langsung ke isi", dan isi kepala halaman, supaya cuplikan Google
   tidak dimulai dengan "TWH Langsung ke isi. TWH Rent Car Armada Layanan ...".
 - `sitemap.xml` (19 halaman + gambar mobil) dan `robots.txt` yang mengizinkan semua (situs lama memblokir CSS, JS, dan
@@ -122,13 +126,16 @@ lebar dan tinggi gambar hasil), lalu `alat/og.py` dan `node bangun.mjs`.
 
 ### Langkah setelah tayang (pemilik)
 
-1. Search Console: properti Domain `arswordlab.com` sudah mencakup alamat baru. Kirim
-   `https://twhrentcar.arswordlab.com/sitemap.xml`, minta pengindeksan beranda, dan di properti lama
-   `https://twhrentcar.vercel.app/` pakai **Perubahan alamat** (Setelan) ke `https://twhrentcar.arswordlab.com/`.
-2. Google Business Profile: ganti tautan situs ke `https://twhrentcar.arswordlab.com/`; pastikan nama, alamat, nomor
-   sama persis dengan situs, unggah foto armada. Tautan di bio Instagram juga diganti.
-3. Tetap disarankan domain sendiri (mis. `twhrentcar.com` atau `.id`) supaya nama situs di Google pasti "TWH Rent Car":
-   ganti `SITUS` di `src/data.mjs`, tambahkan domain sebagai Custom Domain Worker, dan alihkan alamat lama ke sana.
+1. Search Console (pindah ke twhrentcar.com, 2026-11-12): tambahkan properti awalan URL `https://twhrentcar.com/`
+   (verifikasi metode Tag HTML langsung berhasil, meta tag-nya ada di setiap halaman) atau properti Domain
+   `twhrentcar.com` (DNS, Cloudflare bisa memasangnya otomatis). Kirim `https://twhrentcar.com/sitemap.xml`, minta
+   pengindeksan beranda, lalu di properti lama `https://twhrentcar.arswordlab.com/` pakai **Perubahan alamat**
+   (Setelan) ke `https://twhrentcar.com/`. (Properti `https://twhrentcar.vercel.app/` sebelumnya sudah dialihkan ke
+   alamat arswordlab; Vercel kini langsung mengalihkan ke twhrentcar.com.)
+2. Google Business Profile: ganti tautan situs ke `https://twhrentcar.com/`; pastikan nama, alamat, nomor sama persis
+   dengan situs, unggah foto armada. Tautan di bio Instagram juga diganti.
+3. Alamat lama `twhrentcar.arswordlab.com` jangan dihapus: rutenya tetap ada supaya tautan lama dan Google sampai ke
+   domain baru (minimal setahun).
 
 ## Pertanyaan untuk klien
 

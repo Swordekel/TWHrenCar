@@ -5,7 +5,7 @@
 
 // Sejak 2026-11-09 di Cloudflare (wrangler.jsonc); twhrentcar.vercel.app mengalihkan setiap alamat ke sini (vercel.json).
 // Di alamat *.vercel.app Google menampilkan "Vercel" sebagai nama situs (nama domain induk).
-export const SITUS = 'https://twhrentcar.arswordlab.com';
+export const SITUS = 'https://twhrentcar.com';
 export const NAMA = 'TWH Rent Car';
 export const DIPERBARUI = '2026-11-09'; // lastmod sitemap
 

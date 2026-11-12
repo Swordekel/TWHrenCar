@@ -315,7 +315,7 @@ export function periksaUsulan(input, draf, foto) {
 
 // ---------------------------------------------------------------- yang dibaca Claude
 export function sistemTeks() {
-  return `Anda asisten Claude di panel admin situs TWH Rent Car (https://twhrentcar.arswordlab.com), rental mobil dan bus di
+  return `Anda asisten Claude di panel admin situs TWH Rent Car (https://twhrentcar.com), rental mobil dan bus di
 Jakarta, Malang, dan Surabaya. Panel ini dibuat ARSWORD, studio pembuat website dan aplikasi kasir di Pontianak. Yang
 berbicara dengan Anda selalu admin ARSWORD: tim yang membuat dan merawat situs ini untuk kliennya, pemilik TWH Rent Car.
 Jawab dalam bahasa Indonesia yang ringkas, ramah, dan jelas; sapa admin dengan "Kakak". Saat menyebut isian, pakai nama
@@ -369,7 +369,7 @@ ${CATATAN}
 }
 
 export function situsTeks(isi, terbit) {
-  const out = [`<situs nama="TWH Rent Car" alamat="https://twhrentcar.arswordlab.com" versi="${terbit ? terbit.id : 'isi awal (belum pernah terbit dari panel)'}">`];
+  const out = [`<situs nama="TWH Rent Car" alamat="https://twhrentcar.com" versi="${terbit ? terbit.id : 'isi awal (belum pernah terbit dari panel)'}">`];
   out.push('HALAMAN (alamat - judul tab):');
   for (const h of daftarHalaman(isi)) out.push(`- ${h.path} - ${h.judul}`);
   out.push(`Kota dengan titik di peta Jawa: ${Object.keys(PETA.tempat).join(', ')}.`);

@@ -1,4 +1,4 @@
-// Worker situs TWH Rent Car (twhrentcar.arswordlab.com).
+// Worker situs TWH Rent Car (twhrentcar.com; alamat lama twhrentcar.arswordlab.com dan www dialihkan 301 ke sana).
 //
 // - Halaman (/, /armada/, …, /armada/<mobil>/ untuk setiap mobil yang tampil, /sewa-mobil-<kota>/): dirakit dari versi
 //   terbit panel admin (D1) dengan src/rakit.mjs. Selama belum ada versi terbit, atau bila database tidak bisa dibaca,
@@ -7,7 +7,7 @@
 //   dari draf (hanya untuk yang sudah masuk).
 // - /media/*: foto unggahan panel admin (R2).
 // - /robots.txt dan /sitemap.xml mengikuti versi terbit dan pengaturan "tampil di Google" (akun pembuat).
-// - http:// dialihkan permanen ke https:// (zona arswordlab.com tidak memaksa HTTPS; worker/http.js alamatKanon), dan
+// - http:// dialihkan permanen ke https:// (zonanya tidak memaksa HTTPS; worker/http.js alamatKanon), dan
 //   perapian alamat dari html_handling (/armada -> /armada/) yang dijawab Cloudflare dengan 307 dijadikan 301.
 // Berkas lain (CSS, JS, foto bawaan, font) langsung dari aset statis tanpa melewati Worker (run_worker_first).
 import { rakit, halamanDari, halaman404, sitemapXml } from '../src/rakit.mjs';
@@ -21,7 +21,7 @@ import { daftarMedia, unggah, ubahMedia, hapusMedia, sajikanMedia, penyimpanan }
 import { daftarAkun, tambahAkun, ubahAkun, hapusAkun, keluarkanAkun, saya, ubahSaya } from './akun.js';
 import { izinAsisten, tanyaAsisten, kodeAsisten } from './asisten.js';
 
-const SITUS = 'https://twhrentcar.arswordlab.com';
+const SITUS = 'https://twhrentcar.com';
 // sama dengan blok /* di public/_headers (halaman statis); ubah keduanya bersamaan
 const CSP = "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; frame-src https://www.google.com https://maps.google.com; connect-src 'self' https://cloudflareinsights.com; base-uri 'self'; form-action 'self'; object-src 'none'; frame-ancestors 'self'";
 const KEPALA = {

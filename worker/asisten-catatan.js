@@ -4,8 +4,9 @@ export const CATATAN = `Tentang usaha:
 - TWH Rent Car (juga ditulis TWHRENTCAR): rental mobil dan bus sejak 2017 di Jakarta, Malang, dan Surabaya. Garasi utama
   di Jl. Pengadegan Timur III No.37, Pancoran, Jakarta Selatan. Buka 24 jam. Pesanan lewat WhatsApp; situs tidak
   menyimpan data pemesan (formulir hanya menyusun pesan WhatsApp di perangkat pengunjung).
-- Situs ini klien ARSWORD yang sudah tayang dan terdaftar di Google Search Console (twhrentcar.arswordlab.com, pindah
-  dari twhrentcar.vercel.app 2026-11-09). Nomor WhatsApp di situs adalah nomor klien yang sungguhan.
+- Situs ini klien ARSWORD yang sudah tayang dan terdaftar di Google Search Console. Alamatnya domain sendiri
+  twhrentcar.com sejak 2026-11-12; alamat lama twhrentcar.arswordlab.com (2026-11-09 s.d. 11-12) dan twhrentcar.vercel.app
+  dialihkan permanen ke sana. Nomor WhatsApp di situs adalah nomor klien yang sungguhan.
 - Rating Google 5,0 dari 22 ulasan (dicek 2026-11-09). Kalau admin memberi angka baru, ubah di Ulasan & angka.
 
 Halaman (alamat tetap; mobil dan kota punya halaman sendiri):

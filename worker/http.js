@@ -56,7 +56,7 @@ export async function isiJson(req, maks = 100_000) {
 // kueri yang sama, supaya tautan lama tetap jalan dan Google hanya mengenal satu alamat. Tidak berlaku saat pengembangan
 // lokal (DEV=1).
 // (twhrentcar.vercel.app dialihkan oleh Vercel sendiri, lihat vercel.json)
-export const ALAMAT_LAMA = [];
+export const ALAMAT_LAMA = ['twhrentcar.arswordlab.com'];
 export function alamatKanon(url, env) {
   if (env.DEV === '1' || !env.SITUS) return null;
   const utama = new URL(env.SITUS).host;
