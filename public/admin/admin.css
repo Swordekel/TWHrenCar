@@ -336,3 +336,10 @@ html[data-model=m2] .badge.dark { background: var(--dark); color: #fff; }
 .pp-lain { fill: rgba(144, 208, 191, .55); stroke: #0f2a3d; stroke-width: 3; }
 .pp-titik { fill: #90D0BF; stroke: #fff; stroke-width: 3.5; }
 .pp-denyut { fill: none; stroke: #90D0BF; stroke-width: 2; opacity: .7; }
+/* pencarian teks: kata yang cocok ditandai, isian tujuan disorot sebentar setelah dibuka */
+.hasil-teks b { font-weight: 500; line-height: 1.45; }
+.hasil mark { background: rgba(144, 208, 191, .55); color: inherit; border-radius: 4px; padding: 0 2px; }
+.cari-jumlah { margin: 4px 2px 6px; font-size: 12.5px; color: var(--ink-3); }
+.cari-sorot { border-radius: 16px; animation: cariSorot 2.6s ease-out; }
+@keyframes cariSorot { 0%, 55% { box-shadow: 0 0 0 4px rgba(144, 208, 191, .85), 0 0 0 10px rgba(144, 208, 191, .3); background: rgba(144, 208, 191, .16); } 100% { box-shadow: 0 0 0 0 rgba(144, 208, 191, 0); background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .cari-sorot { animation: none; box-shadow: 0 0 0 4px rgba(144, 208, 191, .85); } }

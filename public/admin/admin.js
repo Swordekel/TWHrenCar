@@ -759,11 +759,12 @@
     });
   }
 
+  const D_ULASAN = () => DF('ulasan', '', { judul: (x) => x.nama, sub: (x) => esc(x.mobil ? 'Menyewa ' + x.mobil : ''), item: [T('nama', 'Nama'), T('mobil', 'Mobil yang disewa'), P('teks', 'Ulasan', { baris: 3 })], baru: () => ({ id: idBaru('u'), nama: '', mobil: '', teks: '' }), tambah: 'Tambah ulasan', ke: () => '#judul-ulasan' });
   function pUlasan() {
     return halamanEd({
       judul: 'Ulasan & angka', sub: 'Angka di beranda, rating Google, dan kutipan ulasan pelanggan.', pv: '/',
       form: () => kartu({ j: 'Angka', s: 'Samakan rating dan jumlah ulasan dengan profil Google bisnis', ke: '.angka', f: [BR(N('angka.armada', 'Jumlah armada', { hint: 'Di beranda ditulis dengan tanda +.' }), N('angka.kota', 'Jumlah kota')), BR(T('angka.rating', 'Rating Google', { ph: 'cth. 5,0' }), N('angka.ulasan', 'Jumlah ulasan di Google'))] }) +
-        kartu({ j: 'Ulasan pelanggan', s: 'Kutipan dari ulasan Google', ke: '#judul-ulasan', f: [DF('ulasan', '', { judul: (x) => x.nama, sub: (x) => esc(x.mobil ? 'Menyewa ' + x.mobil : ''), item: [T('nama', 'Nama'), T('mobil', 'Mobil yang disewa'), P('teks', 'Ulasan', { baris: 3 })], baru: () => ({ id: idBaru('u'), nama: '', mobil: '', teks: '' }), tambah: 'Tambah ulasan', ke: () => '#judul-ulasan' })] }),
+        kartu({ j: 'Ulasan pelanggan', s: 'Kutipan dari ulasan Google', ke: '#judul-ulasan', f: [D_ULASAN()] }),
     });
   }
 
@@ -1316,23 +1317,89 @@
     S.isi.ulasan.forEach((x) => r.push({ j: x.nama || '(ulasan)', s: 'Ulasan', go: '#/ulasan', buka: kunciItem('ulasan', x), ic: 'star' }));
     return r;
   }
+
+  // Pencarian teks (pemilik ARSWORD 2026-11-13: "buatkan juga pada pencarian searching itu bisa cari teks juga agar
+  // mempermudah saat ingin mencari teks yang ingin diubah"): setiap tulisan di isi, beserta letaknya di panel (halaman
+  // panel, kartu, butir daftar, label isian). Memilih hasil membuka tempatnya, membuka butirnya, lalu menyorot isian itu
+  // dan memilih kata yang dicari.
+  const CARI_RUTE = [
+    { go: '#/armada', l: 'Armada & harga', f: () => [D_ARMADA(), D_KELAS()] },
+    { go: '#/kota', l: 'Kota', f: () => [D_KOTA()] },
+    { go: '#/layanan', l: 'Layanan', f: () => [D_LAYANAN()] },
+    { go: '#/cara', l: 'Cara sewa & FAQ', f: () => [D_LANGKAH(), D_SYARAT(), TG('situs.bayar', 'Cara bayar'), D_FAQ()] },
+    { go: '#/ulasan', l: 'Ulasan & angka', f: () => [T('angka.rating', 'Rating Google'), D_ULASAN()] },
+  ];
+  function indeksTeks() {
+    const out = [], sudah = new Set();
+    const jalan = (d, base, tempat, buka) => {
+      if (!d) return;
+      if (d.t === 'baris') { d.isi.forEach((x) => jalan(x, base, tempat, buka)); return; }
+      if (!d.p) return;
+      const p = jalur(base, d.p), v = ambil(p);
+      if (d.t === 'kelompok') { d.isi.forEach((x) => jalan(x, p, { ...tempat, butir: d.l }, buka)); return; }
+      if (d.t === 'daftar') {
+        (Array.isArray(v) ? v : []).forEach((x, i) => (d.item || []).forEach((f) => jalan(f, `${p}.${i}`, { ...tempat, butir: (d.judul && d.judul(x, i)) || `Butir ${i + 1}` }, kunciItem(p, x, i))));
+        return;
+      }
+      if (!['teks', 'paragraf', 'tag'].includes(d.t) || sudah.has(p)) return;
+      const s = Array.isArray(v) ? v.join(', ') : typeof v === 'string' ? v : '';
+      if (!s.trim()) return;
+      sudah.add(p);
+      out.push({ teks: s, p, go: tempat.go, buka, s: [tempat.l, tempat.kartu, tempat.butir, String(d.l || '').replace(/<[^>]+>/g, '')].filter(Boolean).join(' › ') });
+    };
+    Object.entries(HAL).forEach(([k, h]) => h.g().forEach((g) => (g.f || []).forEach((d) => jalan(d, '', { go: '#/halaman/' + k, l: 'Halaman ' + h.l, kartu: g.j }))));
+    CARI_RUTE.forEach((r) => r.f().forEach((d) => jalan(d, '', { go: r.go, l: r.l })));
+    Object.entries(ATUR).forEach(([k, a]) => a.g().forEach((g) => (g.f || []).forEach((d) => jalan(d, '', { go: '#/pengaturan/' + k, l: 'Pengaturan ' + a.l, kartu: g.j }))));
+    return out;
+  }
+  // potongan teks di sekitar kata yang dicari, katanya ditandai
+  function potonganTeks(s, q) {
+    const i = s.toLowerCase().indexOf(q);
+    if (i < 0) return esc(s.slice(0, 120));
+    const a = Math.max(0, i - 45), b = Math.min(s.length, i + q.length + 75);
+    return `${a > 0 ? '…' : ''}${esc(s.slice(a, i))}<mark>${esc(s.slice(i, i + q.length))}</mark>${esc(s.slice(i + q.length, b))}${b < s.length ? '…' : ''}`;
+  }
+  let SOROT = null; // { p, q }: isian yang disorot setelah halaman panel terbuka
+  function sorotIsian() {
+    if (!SOROT) return;
+    const { p, q } = SOROT;
+    SOROT = null;
+    // setelah fokus bawaan butir yang dibuka (requestAnimationFrame di render), supaya isian yang dicari yang mendapat fokus
+    const nanti = (f) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(f, 60)));
+    nanti(() => {
+      const el = document.querySelector(`[data-p="${CSS.escape(p)}"], [data-tg="${CSS.escape(p)}"]`);
+      if (!el) return;
+      const kotak = el.closest('.field') || el;
+      kotak.scrollIntoView({ block: 'center', behavior: u.reducedMotion() ? 'auto' : 'smooth' });
+      kotak.classList.remove('cari-sorot'); void kotak.offsetWidth; kotak.classList.add('cari-sorot');
+      setTimeout(() => kotak.classList.remove('cari-sorot'), 2600);
+      if (u.isMobile() || !/INPUT|TEXTAREA/.test(el.tagName)) return;
+      el.focus({ preventScroll: true });
+      const i = q ? el.value.toLowerCase().indexOf(q) : -1;
+      if (i >= 0 && el.setSelectionRange) el.setSelectionRange(i, i + q.length);
+    });
+  }
   function bukaCari() {
-    const semua = indeksCari();
+    const semua = indeksCari(), teks = indeksTeks();
     let hasil = [];
     const s = NM.sheet.open({
       title: 'Cari', size: 'md',
-      body: `<div class="form"><div class="cari-in">${ic('search')}<input type="search" data-cari-semua placeholder="Mobil, kota, halaman, pertanyaan…" autocomplete="off" autofocus aria-label="Cari"></div></div><ul class="hasil" data-hasil></ul>`,
+      body: `<div class="form"><div class="cari-in">${ic('search')}<input type="search" data-cari-semua placeholder="Teks, mobil, kota, halaman, pertanyaan…" autocomplete="off" autofocus aria-label="Cari"></div></div><p class="cari-jumlah" data-cari-jumlah aria-live="polite"></p><ul class="hasil" data-hasil></ul>`,
     });
-    const inp = $('[data-cari-semua]', s), ul = $('[data-hasil]', s);
+    const inp = $('[data-cari-semua]', s), ul = $('[data-hasil]', s), jml = $('[data-cari-jumlah]', s);
     const tulis = () => {
       const q = inp.value.trim().toLowerCase();
-      hasil = (q ? semua.filter((x) => `${x.j} ${x.s}`.toLowerCase().includes(q)) : semua.slice(0, 11)).slice(0, 40);
-      ul.innerHTML = hasil.length ? hasil.map((x, i) => `<li><a href="${x.go}" data-i="${i}">${`<span class="al-ic">${ic(x.ic)}</span>`}<span><b>${esc(x.j)}</b><small>${esc(x.s)}</small></span></a></li>`).join('') : `<li>${UI.empty('Tidak ketemu', 'Coba kata lain.')}</li>`;
+      const menu = q ? semua.filter((x) => `${x.j} ${x.s}`.toLowerCase().includes(q)) : semua.slice(0, 11);
+      const isi = q.length >= 2 ? teks.filter((x) => x.teks.toLowerCase().includes(q)) : [];
+      hasil = [...menu.slice(0, 12), ...isi.slice(0, 60).map((x) => ({ ...x, j: x.teks, cocok: true, ic: 'edit' }))];
+      jml.textContent = q.length >= 2 ? (isi.length ? `${isi.length} teks berisi "${inp.value.trim()}"${isi.length > 60 ? ' (60 pertama)' : ''}` : 'Tidak ada teks yang berisi kata itu.') : 'Ketik paling sedikit dua huruf untuk mencari di semua teks situs.';
+      ul.innerHTML = hasil.length ? hasil.map((x, i) => `<li><a href="${x.go}" data-i="${i}"${x.cocok ? ' class="hasil-teks"' : ''}><span class="al-ic">${ic(x.ic)}</span><span><b>${x.cocok ? potonganTeks(x.teks, q) : esc(x.j)}</b><small>${esc(x.s)}</small></span></a></li>`).join('') : `<li>${UI.empty('Tidak ketemu', 'Coba kata lain.')}</li>`;
     };
+    const pilih = (x) => { if (x.p) SOROT = { p: x.p, q: inp.value.trim().toLowerCase() }; pergi(x.go, x.buka); };
     tulis();
     inp.addEventListener('input', tulis);
-    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter' && hasil[0]) { e.preventDefault(); pergi(hasil[0].go, hasil[0].buka); } });
-    ul.addEventListener('click', (e) => { const a = e.target.closest('a[data-i]'); if (!a) return; e.preventDefault(); const x = hasil[+a.dataset.i]; pergi(x.go, x.buka); });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter' && hasil[0]) { e.preventDefault(); pilih(hasil[0]); } });
+    ul.addEventListener('click', (e) => { const a = e.target.closest('a[data-i]'); if (!a) return; e.preventDefault(); pilih(hasil[+a.dataset.i]); });
     setTimeout(() => inp.focus(), 80);
   }
 
@@ -1366,6 +1433,7 @@
         if (f && !u.isMobile()) f.focus({ preventScroll: true });
       });
     }
+    sorotIsian();
   }
   addEventListener('hashchange', () => { if (S.isi) render(true); });
 
@@ -1375,7 +1443,7 @@
     $('#app').innerHTML = `
       <header class="m2-top glass">
         <button type="button" class="m2-user" data-aksi="menu-saya" aria-label="Akun ${esc(a.email)}"><span class="av">${esc(u.initials(a.nama || a.email))}</span><span class="nm">Halo, <b>${esc(namaDepan(a))}</b></span></button>
-        <button type="button" class="m2-ask" data-aksi="cari"><span class="orb" aria-hidden="true"></span><span class="typed">Cari mobil, kota, halaman…</span><kbd>/</kbd></button>
+        <button type="button" class="m2-ask" data-aksi="cari"><span class="orb" aria-hidden="true"></span><span class="typed">Cari teks, mobil, kota, halaman…</span><kbd>/</kbd></button>
         <div class="m2-top-r">
           <button type="button" class="tb-status" id="tb-status" data-aksi="coba-simpan" data-s="tersimpan" aria-live="polite"><i></i><span>Draf tersimpan</span></button>
           <a class="m2-circ" href="/" target="_blank" rel="noopener" aria-label="Buka situs di tab baru">${ic('ext')}</a>
