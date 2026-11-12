@@ -321,3 +321,9 @@ html[data-model=m2] .badge.dark { background: var(--dark); color: #fff; }
 .sr-angka small { font-size: 12.5px; color: var(--ink-3); }
 .sr-angka b { font-size: 26px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--ink); }
 .sr-angka em { font-style: normal; font-size: 12.5px; color: var(--ink-3); }
+/* batas penyimpanan foto (500 MB) untuk akun admin: terpakai dari batas, dengan bilah */
+.sr-kuota { display: grid; gap: 8px; }
+.sr-kuota-teks { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sr-kuota-teks b { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; color: var(--ink); }
+.sr-kuota-teks small { font-size: 12.5px; color: var(--ink-3); }
+.sr-kuota .bar { height: 10px; }

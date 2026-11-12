@@ -714,10 +714,28 @@
   async function muatSimpan(segar = false) {
     try { return await api('penyimpanan' + (segar ? '?segar=1' : ''), { diam: true }); } catch (e) { return null; }
   }
-  const kartuSimpan = (d) => (d ? `<div class="simpan-r2">
+  // akun admin (klien): terpakai dari batas 500 MB saja, tanpa biaya (pemilik ARSWORD 2026-11-13: "pada akun admin tidak ada
+  // informasi biaya hanya upload saja dengan batas 500mb"); akun pembuat: biaya dan batasnya
+  const ukuranKuota = (b) => (b % 1e6 === 0 ? (b / 1e6) + ' MB' : ukuranBita(b));
+  const persenKuota = (d) => (d.kuota > 0 ? Math.min(100, (d.bita / d.kuota) * 100) : 0);
+  const barKuota = (d) => {
+    const p = persenKuota(d), penuh = d.bita >= d.kuota;
+    return `<div class="sr-kuota"><div class="sr-kuota-teks"><b>${esc(ukuranBita(d.bita))} dari ${esc(ukuranKuota(d.kuota))}</b><small>${penuh ? 'Penuh' : `Sisa ${esc(ukuranBita(d.sisa))}`}</small></div><div class="bar${p >= 90 ? ' bad' : ''}" role="progressbar" aria-label="Penyimpanan foto terpakai" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(p)}"><i style="width:${p.toFixed(1)}%"></i></div></div>`;
+  };
+  const kartuSimpan = (d) => {
+    if (!d) return UI.empty('Penyimpanan belum bisa dihitung', 'Coba muat ulang halaman ini.');
+    if (!pembuat()) {
+      const p = persenKuota(d);
+      return `<div class="simpan-r2">${barKuota(d)}<div class="sr-angka"><span><small>Terpakai</small><b>${esc(ukuranBita(d.bita))}</b><em>${d.objek} berkas (foto besar dan kecil)</em></span><span><small>Sisa</small><b>${esc(ukuranBita(d.sisa))}</b><em>dari batas ${esc(ukuranKuota(d.kuota))}</em></span></div>
+      ${p >= 100 ? `<div class="catatan warn">${ic('alert')}<span>Penyimpanan foto sudah penuh. Hapus foto yang tidak dipakai di bawah, atau hubungi ARSWORD.</span></div>` : p >= 90 ? `<div class="catatan warn">${ic('alert')}<span>Penyimpanan foto hampir penuh. Hapus foto yang tidak dipakai supaya masih bisa mengunggah.</span></div>` : ''}</div>`;
+    }
+    return `<div class="simpan-r2">
       <div class="sr-angka"><span><small>Terpakai</small><b>${esc(ukuranBita(d.bita))}</b><em>${d.objek} berkas (foto besar dan kecil)</em></span><span><small>Perkiraan biaya</small><b>${esc(rupiahKecil(d.rupiah))}</b><em>per bulan</em></span></div>
       <div class="catatan">${ic('info')}<span>Tarif Cloudflare R2: $${String(d.usdPerGb).replace('.', ',')} per GB per bulan (sekitar ${esc(rpR2(d.rupiahPerGb))} per GB, ${esc(d.kursKet)}: ${esc(rpR2(d.kurs))} per dolar). Membuka foto (data keluar) tidak dikenai biaya.</span></div>
-    </div>` : UI.empty('Penyimpanan belum bisa dihitung', 'Coba muat ulang halaman ini.'));
+      ${barKuota(d)}
+      <div class="catatan">${ic('info')}<span>Akun admin klien hanya melihat terpakai dan sisa (tanpa biaya), dan tidak bisa mengunggah lagi setelah ${esc(ukuranKuota(d.kuota))}. Akun pembuat (ARSWORD) tidak dibatasi.</span></div>
+    </div>`;
+  };
   function pFoto() {
     LAYAR.setelah = async (root) => {
       pasangUnggah(root, () => { const g = $('#pf-unggah'); if (g) g.innerHTML = gridMedia(); muatSimpan(true).then((d) => { const k = $('#pf-simpan'); if (k) k.innerHTML = kartuSimpan(d); }); });
@@ -726,7 +744,7 @@
     };
     return UI.head({ title: 'Foto', sub: 'Semua foto yang diunggah. Yang masih dipakai tidak bisa dihapus.' }) +
       `<div class="ed-form">
-        <section class="card"><header class="card-head"><div><h3>Penyimpanan (R2)</h3><p>Ruang yang dipakai unggahan situs ini dan biayanya</p></div></header><div id="pf-simpan"><div class="empty"><span class="putar"></span><b>Menghitung…</b></div></div></section>
+        <section class="card"><header class="card-head"><div>${pembuat() ? '<h3>Penyimpanan (R2)</h3><p>Ruang yang dipakai unggahan situs ini dan biayanya</p>' : '<h3>Penyimpanan foto</h3><p>Ruang untuk foto yang diunggah dari panel ini, batas 500 MB</p>'}</div></header><div id="pf-simpan"><div class="empty"><span class="putar"></span><b>Menghitung…</b></div></div></section>
         ${zonaUnggah()}
         <section class="card"><header class="card-head"><div><h3>Foto unggahan</h3><p>Ketuk untuk melihat, mengubah nama, atau menghapusnya</p></div></header><div class="pf-grid" id="pf-unggah">${gridMedia()}</div></section>
         <details class="card bawaan-foto"><summary><span><b>Foto mobil bawaan</b><small>${S.bawaan.length} foto tanpa latar, dipasang ARSWORD</small></span>${ic('down')}</summary><div class="pf-grid">${S.bawaan.map((b) => `<div class="pf"><span class="pf-gb pf-mobil"><img src="${esc(b.kecil)}" alt="" loading="lazy"></span><b>${esc(b.nama.replace(/-/g, ' '))}</b><small>${b.w}×${b.h}</small></div>`).join('')}</div></details>
@@ -933,10 +951,10 @@
       <ul class="auto-list">
         <li><span class="al-ic ${indeks ? '' : 'warn'}">${ic('search')}</span><div><b>${indeks ? 'Tampil di Google' : 'Disembunyikan dari Google'}</b><small>${indeks ? 'Mesin pencari boleh memasukkan situs ini' : 'Nyalakan lagi di Pengaturan › Tampil di Google'}</small></div>${pembuat() ? '<button type="button" class="al-go light" data-go="#/pengaturan/mesin">Atur</button>' : ''}</li>
         <li><span class="al-ic">${ic('history')}</span><div><b>${S.terbit ? `Versi ${S.terbit.id} tayang` : 'Tayang dari isi awal'}</b><small>${S.terbit ? esc(tglJam(S.terbit.pada)) : 'Terbitkan sekali untuk memakai isi panel'}</small></div><button type="button" class="al-go light" data-go="#/riwayat">Riwayat</button></li>
-        <li id="db-simpan"><span class="al-ic">${ic('database')}</span><div><b>Penyimpanan foto (R2)</b><small>Menghitung…</small></div><button type="button" class="al-go light" data-go="#C:/Program Files/Git/foto">Foto</button></li>
+        <li id="db-simpan"><span class="al-ic">${ic('database')}</span><div><b>Penyimpanan foto (R2)</b><small>Menghitung…</small></div><button type="button" class="al-go light" data-go="#/foto">Foto</button></li>
       </ul></section>`;
     LAYAR.setelah = async () => {
-      muatSimpan().then((d) => { const el = $('#db-simpan'); if (el && d) el.querySelector('div').innerHTML = `<b>Penyimpanan foto: ${esc(ukuranBita(d.bita))}</b><small>${esc(rupiahKecil(d.rupiah))} per bulan</small>`; else if (el) el.querySelector('small').textContent = 'Belum bisa dihitung'; });
+      muatSimpan().then((d) => { const el = $('#db-simpan'); if (el && d) el.querySelector('div').innerHTML = pembuat() ? `<b>Penyimpanan foto: ${esc(ukuranBita(d.bita))}</b><small>${esc(rupiahKecil(d.rupiah))} per bulan</small>` : `<b>Penyimpanan foto: ${esc(ukuranBita(d.bita))} dari ${esc(ukuranKuota(d.kuota))}</b><small>${d.bita >= d.kuota ? 'Penuh, hapus foto yang tidak dipakai' : `Sisa ${esc(ukuranBita(d.sisa))}`}</small>`; else if (el) el.querySelector('small').textContent = 'Belum bisa dihitung'; });
       try {
         const d = await api('riwayat');
         const el = $('#db-akt');

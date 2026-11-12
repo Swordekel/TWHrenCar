@@ -144,8 +144,8 @@ async function api(req, env, jalur, ctx) {
     if (m === 'GET' && jalur === 'riwayat') return riwayat(env);
     if (m === 'POST' && s[0] === 'versi' && s[2] === 'pulihkan') return pulihkan(env, akun, +s[1]);
     if (m === 'GET' && jalur === 'bawaan') return bawaan();
-    // ukuran penyimpanan R2 dan perkiraan biayanya (media.js penyimpanan)
-    if (m === 'GET' && jalur === 'penyimpanan') return penyimpanan(env, new URL(req.url).searchParams.has('segar'));
+    // ukuran penyimpanan R2 dan batas 500 MB; biayanya hanya untuk akun pembuat (media.js penyimpanan)
+    if (m === 'GET' && jalur === 'penyimpanan') return penyimpanan(env, new URL(req.url).searchParams.has('segar'), pembuat);
     // asisten Claude, khusus admin ARSWORD (worker/asisten.js; ARSWORD yang memutuskan siapa admin-nya)
     if (jalur === 'asisten') return m === 'GET' ? izinAsisten(env, akun) : m === 'POST' ? tanyaAsisten(req, env, akun, ctx) : null;
     if (m === 'POST' && jalur === 'asisten/kode') return kodeAsisten(req, env, akun);

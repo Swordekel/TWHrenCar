@@ -37,9 +37,15 @@ export async function unggah(req, env, akun) {
   let form;
   try { form = await req.formData(); } catch { gagal(400, 'form', 'Unggahan tidak terbaca.'); }
   const f = fotoDari(form), id = acakHex(8);
+  // akun admin: unggahan yang membuat penyimpanan melewati batas ditolak (akun pembuat ARSWORD tidak dibatasi)
+  if (akun.peran !== 'pembuat') {
+    const { bita } = await hitungR2(env, true);
+    if (bita + f.besar.size + (f.kecil ? f.kecil.size : 0) > KUOTA_ADMIN) gagal(413, 'kuota', `Penyimpanan foto sudah penuh (batas ${KUOTA_ADMIN / 1e6} MB). Hapus foto yang tidak dipakai, atau hubungi ARSWORD.`);
+  }
   const meta = { httpMetadata: { contentType: MIME[f.ext], cacheControl: SIMPAN } };
   await env.MEDIA.put(`m/${id}.${f.ext}`, f.besar.stream(), meta);
   if (f.kecil) await env.MEDIA.put(`m/${id}-640.${f.ext}`, f.kecil.stream(), meta);
+  SIMPAN_R2.pada = 0; // angka penyimpanan dihitung ulang
   const nama = String(form.get('nama') || '').slice(0, 120), alt = String(form.get('alt') || '').slice(0, 300);
   const pada = Date.now();
   await env.DB.prepare('INSERT INTO media (id, ext, w, h, ukuran, nama, alt, oleh, pada) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
@@ -63,6 +69,7 @@ export async function hapusMedia(env, akun, id) {
   const d = await ambilDraf(env), t = await ambilTerbit(env);
   if (fotoDipakai(d.isi).has(id) || (t && fotoDipakai(t.isi).has(id))) gagal(409, 'dipakai', 'Foto ini masih dipakai di situs atau draf. Ganti dulu di bagian yang memakainya, terbitkan, lalu hapus.');
   await env.MEDIA.delete([`m/${id}.${baris.ext}`, `m/${id}-640.${baris.ext}`]);
+  SIMPAN_R2.pada = 0;
   await env.DB.prepare('DELETE FROM media WHERE id = ?').bind(id).run();
   await catat(env, { oleh: akun.email, aksi: 'hapus_foto', detail: { id, nama: baris.nama } });
   return json({ ok: true });
@@ -88,10 +95,21 @@ export async function sajikanMedia(req, env, berkas) {
 // di memori isolate. Tarif R2 Standard: $0,015 per GB per bulan, dihitung penuh tanpa jatah gratis 10 GB akun Cloudflare
 // (pemilik ARSWORD 2026-11-12: "tidak usah di hitung itu gratis penggunaan 10gb dari cloudflare"); data keluar (egress) selalu gratis. Kurs bisa diganti lewat
 // variabel KURS_USD; bawaannya kurs tengah BI 9 November 2026.
+//
+// Akun admin (klien TWH) tidak melihat biaya: hanya terpakai dari batas 500 MB, dan unggahan yang melewati batas itu
+// ditolak (pemilik ARSWORD 2026-11-13: "pada akun admin tidak ada informasi biaya hanya upload saja dengan batas 500mb
+// ini hanya khusus pada admin twhrentcar admin panel"). Akun pembuat (ARSWORD) tetap melihat biaya dan batasnya, dan
+// unggahannya tidak dibatasi. 1 MB = 1.000.000 bita, sama dengan tampilan di panel.
 const TARIF_R2 = { usdPerGb: 0.015, kurs: 18130, kursKet: 'kurs tengah BI 9 November 2026' };
+export const KUOTA_ADMIN = 500 * 1e6;
 let SIMPAN_R2 = { pada: 0, data: null };
-export async function penyimpanan(env, segar = false) {
-  if (!segar && SIMPAN_R2.data && Date.now() - SIMPAN_R2.pada < 5 * 60_000) return json(SIMPAN_R2.data);
+export async function penyimpanan(env, segar = false, pembuat = false) {
+  const d = await hitungR2(env, segar);
+  if (!pembuat) return json({ bita: d.bita, objek: d.objek, kuota: KUOTA_ADMIN, sisa: Math.max(0, KUOTA_ADMIN - d.bita), dihitung: d.dihitung });
+  return json({ ...d, kuota: KUOTA_ADMIN, sisa: Math.max(0, KUOTA_ADMIN - d.bita) });
+}
+async function hitungR2(env, segar = false) {
+  if (!segar && SIMPAN_R2.data && Date.now() - SIMPAN_R2.pada < 5 * 60_000) return SIMPAN_R2.data;
   let bita = 0, objek = 0, cursor, halaman = 0;
   do {
     const r = await env.MEDIA.list({ cursor, limit: 1000 });
@@ -104,5 +122,5 @@ export async function penyimpanan(env, segar = false) {
     bita, objek, gb, usd, rupiah: usd * kurs, kurs, kursKet: +env.KURS_USD > 0 ? 'kurs dari pengaturan Worker (KURS_USD)' : TARIF_R2.kursKet,
     rupiahPerGb: TARIF_R2.usdPerGb * kurs, usdPerGb: TARIF_R2.usdPerGb, dihitung: Date.now(),
   } };
-  return json(SIMPAN_R2.data);
+  return SIMPAN_R2.data;
 }
