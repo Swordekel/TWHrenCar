@@ -327,3 +327,12 @@ html[data-model=m2] .badge.dark { background: var(--dark); color: #fff; }
 .sr-kuota-teks b { font-size: 15px; font-weight: 650; font-variant-numeric: tabular-nums; color: var(--ink); }
 .sr-kuota-teks small { font-size: 12.5px; color: var(--ink-3); }
 .sr-kuota .bar { height: 10px; }
+/* titik kota di peta Jawa (isian kota): ketuk peta untuk memasang titik */
+/* cursor: pointer supaya Safari iPhone mengirim klik saat peta diketuk (elemen tanpa tanda bisa diklik tidak mendapat klik) */
+.peta-pilih { position: relative; border-radius: var(--r-in, 14px); border: 1px solid var(--line-2); background: #0f2a3d; padding: 10px 8px; cursor: pointer; touch-action: manipulation; }
+@media (pointer: fine) { .peta-pilih { cursor: crosshair; } }
+.peta-pilih svg { display: block; width: 100%; height: auto; overflow: visible; }
+.pp-darat { fill: none; stroke: rgba(144, 208, 191, .42); stroke-width: 5.2; stroke-linecap: round; }
+.pp-lain { fill: rgba(144, 208, 191, .55); stroke: #0f2a3d; stroke-width: 3; }
+.pp-titik { fill: #90D0BF; stroke: #fff; stroke-width: 3.5; }
+.pp-denyut { fill: none; stroke: #90D0BF; stroke-width: 2; opacity: .7; }

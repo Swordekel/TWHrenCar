@@ -1,6 +1,7 @@
 // Potongan yang dipakai beberapa halaman: kartu mobil, peta titik Jawa, langkah sewa, FAQ, ulasan, hero halaman dalam.
 // Semua menerima c (konteks dari src/rakit.mjs): c.D = data dari isi panel, c.T = teks, c.t = teks siap tulis (isian
 // otomatis + escape), c.href = alamat luar yang aman untuk atribut, c.peta = src/peta.json.
+import { titikKota, letakLabel, rute } from '../kota-peta.mjs';
 
 export function kartuMobil(c, m, judulTag = 'h3') {
   const { esc, ikon, fotoMobil, rupiah } = c;
@@ -22,23 +23,18 @@ export function kartuMobil(c, m, judulTag = 'h3') {
 </article>`;
 }
 
-// peta titik Pulau Jawa (alat/peta.py): daratan satu path titik bulat, rute antar kota, dan penanda tiap kota. Hanya kota
-// yang punya titik di src/peta.json (Jakarta, Malang, Surabaya) yang tergambar.
-const LABEL_PETA = { jakarta: [0, -26, 'middle'], surabaya: [22, -6, 'start'], malang: [-22, 18, 'end'] };
+// peta titik Pulau Jawa (alat/peta.py): daratan satu path titik bulat, rute antar kota, dan penanda tiap kota. Setiap kota
+// yang punya titik tergambar: titik dari panel, dari src/peta.json, atau titik bawaan kota di Jawa (src/kota-peta.mjs).
 export function peta(c, dengan = true) {
   const { D, esc, peta: PETA } = c;
   const d = PETA.titik.map(([x, y]) => `M${x} ${y}h0`).join('');
-  const T = PETA.tempat;
-  // rute melengkung: Jakarta -> Surabaya -> Malang
-  const [j, s, m] = [T.jakarta, T.surabaya, T.malang];
-  const rute = `M${j[0]} ${j[1]}Q${(j[0] + s[0]) / 2} ${Math.min(j[1], s[1]) - 120} ${s[0]} ${s[1]}Q${s[0] + 40} ${(s[1] + m[1]) / 2} ${m[0]} ${m[1]}`;
-  const kota = D.KOTA.filter((k) => T[k.slug]);
-  const nama = kota.map((k) => k.nama);
+  const kota = D.KOTA.map((k) => ({ k, t: titikKota(k, PETA) })).filter((x) => x.t);
+  const nama = kota.map(({ k }) => k.nama);
   const daftar = nama.length > 1 ? `${nama.slice(0, -1).join(', ')}, dan ${nama[nama.length - 1]}` : nama.join('');
   return `<svg class="peta" viewBox="0 0 ${PETA.lebar} ${PETA.tinggi}" role="img" aria-label="Peta Pulau Jawa: TWH Rent Car di ${esc(daftar)}">
     <path class="peta-darat" d="${d}"/>
-    <path class="peta-rute" d="${rute}" pathLength="1"/>
-    ${kota.map((k) => { const [x, y] = T[k.slug], [lx, ly, ta] = LABEL_PETA[k.slug] || [0, -26, 'middle']; return `<a class="peta-pin" href="/sewa-mobil-${k.slug}/" data-kota="${k.slug}" aria-label="Sewa mobil ${esc(k.nama)}, ${esc(k.unit)} unit">
+    <path class="peta-rute" d="${rute(kota.map(({ t }) => t.xy))}" pathLength="1"/>
+    ${kota.map(({ k, t }) => { const [x, y] = t.xy, [lx, ly, ta] = letakLabel(k); return `<a class="peta-pin" href="/sewa-mobil-${k.slug}/" data-kota="${k.slug}" aria-label="Sewa mobil ${esc(k.nama)}, ${esc(k.unit)} unit">
       <circle class="peta-denyut" cx="${x}" cy="${y}" r="12"/><circle class="peta-titik" cx="${x}" cy="${y}" r="7"/>
       <text x="${x + lx}" y="${y + ly}" text-anchor="${ta}">${esc(k.nama)}${dengan ? `<tspan class="peta-unit" dx="8">${esc(k.unit)} unit</tspan>` : ''}</text></a>`; }).join('\n    ')}
   </svg>`;

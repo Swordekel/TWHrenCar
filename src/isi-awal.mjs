@@ -170,12 +170,14 @@ export const ISI_AWAL = {
     hero: m.hero || 0, ringkas: m.ringkas, isi: m.isi, cocok: m.cocok.slice(), judulSeo: '', deskripsiSeo: '',
   })),
 
-  // kota. Titik di peta Jawa hanya ada untuk Jakarta, Malang, dan Surabaya (src/peta.json). mobil = mobil di bagian atas
-  // halaman kota itu.
+  // kota. mobil = mobil di bagian atas halaman kota itu. peta = titik kota di peta Jawa [x, y] yang dipasang di panel
+  // (kosong = titik otomatis: src/peta.json atau kota-kota di Jawa, src/kota-peta.mjs); label = letak nama kota di peta
+  // ('' otomatis, atas, kanan, kiri, bawah).
   kota: D.KOTA.map((k) => ({
     id: k.slug, slug: k.slug, nama: k.nama, unit: k.unit, garasi: !!k.garasi,
     mobil: k.slug === 'jakarta' ? 'toyota-avanza' : k.slug === 'malang' ? 'toyota-hiace' : 'toyota-innova-zenix',
     judul: k.judul, pembuka: k.pembuka, bandara: k.bandara.slice(), titik: k.titik.slice(), cerita: k.cerita, judulSeo: '', deskripsiSeo: '',
+    peta: [], label: '',
   })),
 
   // layanan. ikon: pesawat, cincin, gedung, rombongan, jalan, kalender. mobil = mobil yang disarankan. wa = kata di pesan

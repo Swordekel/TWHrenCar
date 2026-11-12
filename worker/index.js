@@ -14,6 +14,7 @@ import { rakit, halamanDari, halaman404, sitemapXml } from '../src/rakit.mjs';
 import MANIFEST from '../src/manifest.json';
 import UKURAN from '../src/armada-ukuran.json';
 import PETA from '../src/peta.json';
+import { TITIK_JAWA } from '../src/kota-peta.mjs';
 import { json, gagal, GalatHttp, asalSama, alamatKanon } from './http.js';
 import { mintaKode, cocokkanKode, masukTiket, akunMasuk, keluar } from './auth.js';
 import { ambilTerbit, ambilDraf, petaMedia, apiIsi, simpanBagian, terbitkan, buangDraf, riwayat, pulihkan } from './isi.js';
@@ -110,7 +111,8 @@ async function sitemap(req, env) {
   return new Response(xml, { headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=300' } });
 }
 
-// foto mobil bawaan (public/assets/armada) untuk pemilih foto di panel admin, dan kota yang punya titik di peta
+// foto mobil bawaan (public/assets/armada) untuk pemilih foto di panel admin, dan peta titik Jawa untuk memasang titik
+// kota di menu Kota: daratan, titik src/peta.json, dan titik bawaan kota-kota di Jawa (src/kota-peta.mjs)
 function bawaan() {
   return json({
     foto: Object.entries(UKURAN).map(([nama, { w, h }]) => ({
@@ -119,6 +121,7 @@ function bawaan() {
       kecil: `/assets/armada/${nama}-720.webp?v=${MANIFEST[`assets/armada/${nama}-720.webp`] || '0'}`,
     })),
     tempat: Object.keys(PETA.tempat),
+    peta: { lebar: PETA.lebar, tinggi: PETA.tinggi, titik: PETA.titik, tempat: PETA.tempat, jawa: TITIK_JAWA },
   });
 }
 

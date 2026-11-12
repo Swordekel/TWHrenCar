@@ -145,7 +145,7 @@
   }
 
   // ------------------------------------------------------------------ keadaan
-  const S = { akun: null, isi: null, rev: {}, ubah: {}, berubah: [], terbit: null, media: [], bawaan: [], tempat: [] };
+  const S = { akun: null, isi: null, rev: {}, ubah: {}, berubah: [], terbit: null, media: [], bawaan: [], tempat: [], peta: null };
   const PETA = { media: {}, bawaan: {} };
   let LAYAR = {};
   let FOKUS = null;
@@ -411,6 +411,15 @@
         const m = ambil(base) || {}, url = fotoUrl(m.foto, true), xs = Array.isArray(v) ? v : [];
         return `<div class="field"><span class="lbl">${d.l}</span>${url ? `<div class="lampu" data-lampu="${esc(p)}"><img src="${esc(url)}" alt="" draggable="false">${xs.map((t, i) => `<i style="left:${t[0] * 100}%;top:${t[1] * 100}%">${i + 1}</i>`).join('')}</div><div class="lampu-bar"><small class="hint">${xs.length === 2 ? 'Dua titik lampu terpasang. Ketuk foto untuk memasang ulang.' : 'Ketuk lampu depan yang dekat, lalu yang jauh.'}</small>${xs.length ? `<button type="button" class="btn ghost sm" data-aksi="lampu-hapus" data-p="${esc(p)}">Hapus titik</button>` : ''}</div>` : '<small class="hint">Pasang fotonya dulu.</small>'}${d.hint ? `<small class="hint">${d.hint}</small>` : ''}</div>`;
       }
+      // titik kota di peta Jawa: ketuk peta untuk memasang; kosong = titik otomatis (src/kota-peta.mjs)
+      case 'peta': {
+        const P = S.peta, k = ambil(base) || {};
+        if (!P) return '';
+        const t = titikKota(k), lain = (S.isi.kota || []).filter((x) => x !== k).map(titikKota).filter(Boolean);
+        const ket = t ? (t.asal === 'panel' ? 'Titik dipasang di sini. Ketuk peta untuk memindahkannya.' : `Titik otomatis untuk ${esc(k.nama || 'kota ini')}. Ketuk peta bila letaknya perlu digeser.`)
+          : `${esc(k.nama || 'Kota ini')} belum punya titik: tidak ada di daftar kota Jawa, atau di luar peta. Ketuk peta untuk memasangnya.`;
+        return `<div class="field"><span class="lbl">${d.l}</span><div class="peta-pilih" data-peta-pilih="${esc(p)}"><svg viewBox="0 0 ${P.lebar} ${P.tinggi}" aria-hidden="true"><path class="pp-darat" d="${P.titik.map(([x, y]) => `M${x} ${y}h0`).join('')}"/>${lain.map((x) => `<circle class="pp-lain" cx="${x.xy[0]}" cy="${x.xy[1]}" r="7"/>`).join('')}${t ? `<circle class="pp-denyut" cx="${t.xy[0]}" cy="${t.xy[1]}" r="17"/><circle class="pp-titik" cx="${t.xy[0]}" cy="${t.xy[1]}" r="9"/>` : ''}</svg></div><div class="lampu-bar"><small class="hint">${ket}</small>${t && t.asal === 'panel' ? `<button type="button" class="btn ghost sm" data-aksi="peta-otomatis" data-p="${esc(p)}">Pakai titik otomatis</button>` : ''}</div>${d.hint ? `<small class="hint">${d.hint}</small>` : ''}</div>`;
+      }
       case 'daftar':
         return daftarHTML(d, p);
       case 'kelompok':
@@ -624,18 +633,33 @@
   }
 
   // ------------------------------------------------------------------ kota, layanan, cara sewa, ulasan
+  // titik kota di peta (sama dengan titikKota di src/kota-peta.mjs): dipasang di panel, dari src/peta.json, atau titik
+  // bawaan kota-kota di Jawa (S.peta.jawa, dari GET bawaan)
+  const kunciKota = (s) => String(s || '').toLowerCase().replace(/^(kota|kabupaten|kab\.?)\s+/, '').replace(/[^a-z]/g, '');
+  function titikKota(k) {
+    const P = S.peta;
+    if (!P || !k) return null;
+    const di = (q) => Array.isArray(q) && q.length === 2 && q.every(Number.isFinite) && q[0] >= 0 && q[0] <= P.lebar && q[1] >= 0 && q[1] <= P.tinggi;
+    if (di(k.peta)) return { xy: k.peta, asal: 'panel' };
+    let t = P.tempat[k.slug];
+    if (!t) for (const c of [kunciKota(k.slug), kunciKota(k.nama), ...String(k.slug || '').split('-').map(kunciKota)]) if (P.jawa[c]) { t = P.jawa[c]; break; }
+    return di(t) ? { xy: t, asal: 'bawaan' } : null;
+  }
+  const LETAK_NAMA = [{ v: '', l: 'Otomatis' }, { v: 'atas', l: 'Di atas titik' }, { v: 'kanan', l: 'Di kanan titik' }, { v: 'kiri', l: 'Di kiri titik' }, { v: 'bawah', l: 'Di bawah titik' }];
   const D_KOTA = () => DF('kota', '', {
-    judul: (x) => x.nama, sub: (x) => `${esc(x.unit)} unit${x.garasi ? ' · garasi' : ''}${S.tempat.includes(x.slug) ? '' : ' · tanpa titik di peta'}`,
+    judul: (x) => x.nama, sub: (x) => `${esc(x.unit)} unit${x.garasi ? ' · garasi' : ''}${titikKota(x) ? '' : ' · tanpa titik di peta'}`,
     ke: () => '#kota', tambah: 'Tambah kota',
     tambahFn: async () => {
-      const nama = await tanya({ judul: 'Kota baru', label: 'Nama kota', ph: 'cth. Bandung', ok: 'Tambah', hint: 'Halamannya /sewa-mobil-<nama>/. Titik di peta Jawa hanya ada untuk Jakarta, Malang, dan Surabaya; kota lain tetap punya halaman dan kartu.' });
+      const nama = await tanya({ judul: 'Kota baru', label: 'Nama kota', ph: 'cth. Bandung', ok: 'Tambah', hint: 'Halamannya /sewa-mobil-<nama>/. Kota-kota di Jawa langsung mendapat titik di peta; kota lain bisa diberi titik dengan mengetuk peta di isian kotanya.' });
       if (!nama) return null;
       const k = kunciUnik(nama, new Set(S.isi.kota.map((x) => x.slug)));
-      return { id: k, slug: k, nama, unit: 0, garasi: false, mobil: pertamaTampil(S.isi.armada), judul: `Sewa mobil di ${nama}.`, pembuka: '', bandara: [], titik: [], cerita: '', judulSeo: '', deskripsiSeo: '' };
+      return { id: k, slug: k, nama, unit: 0, garasi: false, mobil: pertamaTampil(S.isi.armada), judul: `Sewa mobil di ${nama}.`, pembuka: '', bandara: [], titik: [], cerita: '', judulSeo: '', deskripsiSeo: '', peta: [], label: '' };
     },
     hapusCek: (x) => NM.confirm(`Hapus <b>${esc(x.nama)}</b>? Halamannya (/sewa-mobil-${esc(x.slug)}/) ikut hilang.`, { ok: 'Hapus', tone: 'danger' }),
     item: [
       BR(T('nama', 'Nama kota'), N('unit', 'Jumlah unit')),
+      { t: 'peta', p: 'peta', l: 'Titik di peta', hint: 'Peta di beranda dan halaman Lokasi. Rute antar kota menyambung sendiri.' },
+      PL('label', 'Letak nama kota di peta', LETAK_NAMA, { jika: (x) => !!titikKota(x) }),
       SK('garasi', 'Ada garasi di kota ini', { hint: 'Halaman kotanya menulis alamat garasi untuk ambil sendiri.' }),
       PL('mobil', 'Mobil di bagian atas halaman kota', () => opsiMobil('Tanpa mobil')),
       T('judul', 'Judul besar'), P('pembuka', 'Teks pembuka', { baris: 3 }),
@@ -1511,6 +1535,44 @@
     if (b) b.focus({ preventScroll: false });
   });
 
+  // Titik kota di peta Jawa (isian kota, koordinat peta 1200 × 408) dan titik lampu mobil (foto, 0–1) dipasang saat jari
+  // atau tetikus diangkat di tempat yang sama: pointerup, atau touchend bila peramban tidak mengirimnya. Bukan click:
+  // Safari iPhone tidak mengirim click untuk ketukan pada gambar atau peta. Bergeser lebih dari 12 piksel = menggulir.
+  let ketuk = null;
+  function ketukTitik(x, y, target) {
+    const k = ketuk;
+    ketuk = null;
+    if (!k || !target || Math.hypot(x - k.x, y - k.y) > 12) return;
+    const pp = target.closest('[data-peta-pilih]');
+    if (pp && S.peta) {
+      const r = pp.querySelector('svg').getBoundingClientRect(), p = pp.dataset.petaPilih;
+      const px = Math.round(((x - r.left) / r.width) * S.peta.lebar * 10) / 10, py = Math.round(((y - r.top) / r.height) * S.peta.tinggi * 10) / 10;
+      if (!(px >= 0 && px <= S.peta.lebar && py >= 0 && py <= S.peta.tinggi)) return;
+      tetapkan(p, [px, py]);
+      segarkan(pp);
+      return;
+    }
+    const lp = target.closest('.lampu[data-lampu]');
+    if (lp && !target.closest('[data-aksi]')) {
+      const r = lp.querySelector('img').getBoundingClientRect(), p = lp.dataset.lampu;
+      const pt = [Math.round(((x - r.left) / r.width) * 1000) / 1000, Math.round(((y - r.top) / r.height) * 1000) / 1000];
+      if (pt[0] < 0 || pt[0] > 1 || pt[1] < 0 || pt[1] > 1) return;
+      const lama = Array.isArray(ambil(p)) ? ambil(p) : [];
+      tetapkan(p, lama.length >= 2 ? [pt] : [...lama, pt]);
+      segarkan(lp);
+    }
+  }
+  document.addEventListener('pointerdown', (e) => {
+    const t = e.target.closest && e.target.closest('[data-peta-pilih], .lampu[data-lampu]');
+    ketuk = t && e.isPrimary && (e.pointerType !== 'mouse' || e.button === 0) && !e.target.closest('[data-aksi]') ? { x: e.clientX, y: e.clientY } : null;
+  });
+  document.addEventListener('pointercancel', () => { ketuk = null; });
+  document.addEventListener('pointerup', (e) => { if (e.isPrimary && ketuk) ketukTitik(e.clientX, e.clientY, e.target); });
+  document.addEventListener('touchend', (e) => {
+    const t = e.changedTouches && e.changedTouches[0];
+    if (t && ketuk) ketukTitik(t.clientX, t.clientY, document.elementFromPoint(t.clientX, t.clientY) || e.target);
+  });
+
   document.addEventListener('click', async (e) => {
     const go = e.target.closest('[data-go]');
     if (go) { e.preventDefault(); pergi(go.dataset.go); return; }
@@ -1521,16 +1583,8 @@
       $$('.pv-layar').forEach(ukurPv);
       return;
     }
-    const lp = e.target.closest('.lampu[data-lampu]');
-    if (lp && !e.target.closest('[data-aksi]')) {
-      const r = lp.querySelector('img').getBoundingClientRect(), p = lp.dataset.lampu;
-      const pt = [Math.round(((e.clientX - r.left) / r.width) * 1000) / 1000, Math.round(((e.clientY - r.top) / r.height) * 1000) / 1000];
-      if (pt[0] < 0 || pt[0] > 1 || pt[1] < 0 || pt[1] > 1) return;
-      const lama = Array.isArray(ambil(p)) ? ambil(p) : [];
-      tetapkan(p, lama.length >= 2 ? [pt] : [...lama, pt]);
-      segarkan(lp);
-      return;
-    }
+    // (peta kota dan foto titik lampu: dipasang lewat ketukTitik di bawah, bukan click)
+    if (e.target.closest('[data-peta-pilih], .lampu[data-lampu]') && !e.target.closest('[data-aksi]')) return;
     const a = e.target.closest('[data-aksi]');
     if (!a) return;
     if (a.closest('summary')) e.preventDefault();
@@ -1580,6 +1634,7 @@
       case 'foto-ganti': { const f = await pilihFoto({ sekarang: ambil(p) }); if (f) { tetapkan(p, f); segarkan(a); } return; }
       case 'foto-hapus': tetapkan(p, ''); segarkan(a); return;
       case 'lampu-hapus': tetapkan(p, []); segarkan(a); return;
+      case 'peta-otomatis': tetapkan(p, []); segarkan(a); return;
       case 'fotos-tambah': {
         const fs = await pilihFoto({ banyak: true });
         if (!fs || !fs.length) return;
@@ -1719,7 +1774,7 @@
     try { S.akun = await api('saya', { diam: true }); } catch (e) { if (e.status === 401) { const p = pesanTiket; pesanTiket = ''; return tampilMasuk(p); } return gagalMuat(e); }
     try {
       const [isi, media, bw] = await Promise.all([api('isi'), api('media'), api('bawaan')]);
-      S.media = media.media; S.bawaan = bw.foto; S.tempat = bw.tempat || [];
+      S.media = media.media; S.bawaan = bw.foto; S.tempat = bw.tempat || []; S.peta = bw.peta || null;
       indeksMedia();
       kerangka();
       terapkanDraf(isi);

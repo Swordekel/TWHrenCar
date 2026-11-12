@@ -121,6 +121,7 @@ function pilihan(b, k, isi) {
   if (b === 'armada' && k === 'kelas') return isi.kelas.map((x) => x.id);
   if (b === 'armada' && k === 'arah') return ['kiri', 'kanan'];
   if (b === 'layanan' && k === 'ikon') return IKON;
+  if (b === 'kota' && k === 'label') return ['', 'atas', 'kanan', 'kiri', 'bawah'];
   if (ADA_MOBIL.includes(b) && k === 'mobil') return ['', ...isi.armada.map((m) => m.slug)];
   return null;
 }
@@ -241,6 +242,7 @@ export function terapkanLangkah(asal, langkah, foto) {
       if (k === 'id' || k === 'slug') { peringatan.push(`${nama}: kunci ini menentukan alamat dan tautan, jadi tidak diganti.`); continue; }
       if (b === 'situs' && k === 'indeks') { peringatan.push('Tampil di Google hanya diatur akun pembuat di Pengaturan; tidak diubah.'); continue; }
       if (b === 'armada' && k === 'lampu') { peringatan.push(`${nama}: titik lampu dipasang di panel dengan mengetuk foto mobilnya; tidak diubah.`); continue; }
+      if (b === 'kota' && k === 'peta') { peringatan.push(`${nama}: titik kota di peta dipasang di panel dengan mengetuk peta (menu Kota); tidak diubah.`); continue; }
       let jenis;
       if (r.baru) {
         const lain = [...semuaDi(isi, jalur), ...semuaDi(ISI_AWAL, jalur)].find((v) => v !== undefined);
@@ -349,7 +351,9 @@ Aturan usulan:
   di daftar itu, tanpa id dan slug (dibuat sistem dari nama). "setelah": id butir sesudah mana ia diletakkan, atau
   "awal"; bawaan di akhir. Mobil baru tanpa foto disembunyikan dulu.
 - hapus: jalur menunjuk butirnya. urutkan: jalur menunjuk daftarnya, "urutan" berisi id butir dalam urutan baru.
-- Jangan mengubah id atau slug (alamat halaman), situs.indeks (Tampil di Google), atau titik lampu mobil.
+- Jangan mengubah id atau slug (alamat halaman), situs.indeks (Tampil di Google), titik lampu mobil, atau titik kota di peta
+  (kota.peta; kosong = titik otomatis untuk kota-kota di Jawa). kota.label = letak nama kota di peta: "", atas, kanan,
+  kiri, bawah.
 - Pertahankan gaya, bahasa, dan panjang tulisan situs kecuali admin meminta lain. Pakai nilai pilihan persis seperti
   yang ada di isi (kelas mobil, slug mobil untuk isian "mobil", ikon layanan).
 - Harga yang ditulis sebagai teks (jawaban FAQ, deskripsi Google) tidak ikut berubah saat harga mobil diubah. Bila admin

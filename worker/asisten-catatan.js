@@ -11,7 +11,7 @@ export const CATATAN = `Tentang usaha:
 
 Halaman (alamat tetap; mobil dan kota punya halaman sendiri):
 - / beranda: panggung mobil (WebGL, mobil keluar-masuk, klik mobil = lampu depan berkedip), cek tanggal, kalimat besar,
-  angka, kartu armada yang digeser, layanan, cara sewa singkat, peta Jawa dengan tiga kota, ulasan.
+  angka, kartu armada yang digeser, layanan, cara sewa singkat, peta Jawa dengan titik tiap kota, ulasan.
 - /armada/ (pemilih jumlah penumpang, filter kelas, kartu, tabel harga), /armada/<slug>/ satu per mobil yang tampil.
 - /layanan/, /cara-sewa/ (langkah, dokumen, cara bayar, FAQ), /lokasi/ (peta dan kartu kota), /sewa-mobil-<slug>/ satu
   per kota, /kontak/ (formulir pesan dan peta garasi). Di bawah setiap halaman: ajakan "Kuncinya sudah siap." dengan
@@ -42,8 +42,10 @@ Cara kerja panel:
 - Menyembunyikan mobil (sakelar Tampilkan di situs) juga menyembunyikan halamannya (jadi 404) dan mengeluarkannya dari
   sitemap. Mobil yang masih dipakai sebagai "mobil" di layanan, halaman kota, atau bagian atas halaman tidak bisa
   dihapus sebelum diganti.
-- Kota: titik di peta Jawa hanya untuk Jakarta, Malang, dan Surabaya (slug jakarta, malang, surabaya). Kota baru tetap
-  punya halaman, kartu, dan masuk formulir pesan, tapi tanpa titik di peta (menambah titik butuh kode).
+- Kota: setiap kota punya titik di peta Jawa (beranda dan /lokasi/). Kota-kota di Jawa dan Madura mendapat titik otomatis
+  dari namanya (Yogyakarta/Jogja, Bandung, Semarang, Solo, Bogor, …); titik bisa digeser, atau dipasang untuk kota lain,
+  dengan mengetuk peta di isian kotanya (menu Kota). Kota di luar peta (Bali, luar Jawa) tidak bisa bertitik. Letak nama
+  kota (otomatis, atas, kanan, kiri, bawah) dipilih di isian yang sama. Rute antar kota menyambung sendiri dari barat.
 - Layanan: ikon dipilih dari pesawat, cincin, gedung, rombongan, jalan, kalender. "Kata di pesan WhatsApp" melanjutkan
   "Halo TWH Rent Car, saya ingin tanya <kata>. Untuk tanggal: ".
 - Judul besar halaman Kontak juga judul lembar pesan di semua halaman.
