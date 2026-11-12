@@ -1,0 +1,81 @@
+/* Tema panel admin TWH Rent Car. Template "Kaca" (vendor/m2.css) diwarnai dari situsnya (public/styles.css): navy
+   malam dan navy lencana, mint lencana, kertas mint pucat, huruf Archivo, dan garis putus-putus jalan di tepi atas
+   (rute antarkota di situs). Hanya token; bentuk dan tata letak tetap milik template. */
+@font-face { font-family: 'Archivo'; src: url('/assets/font/archivo.woff2') format('woff2'); font-weight: 400 800; font-stretch: 75% 100%; font-style: normal; font-display: swap; }
+
+html[data-model=m2] {
+  --font: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* garasi studio di balik kaca: langit-langit navy malam, lampu softbox mint di kiri, cahaya putih dari kanan, lantai
+     beton terang */
+  --scene:
+    radial-gradient(60% 26% at 50% -4%, rgba(13,35,49,.95), transparent 70%),
+    radial-gradient(14% 10% at 22% 6%, rgba(27,71,102,.7), transparent 70%),
+    radial-gradient(16% 10% at 77% 6%, rgba(27,71,102,.7), transparent 70%),
+    radial-gradient(26% 62% at -3% 62%, rgba(13,35,49,.92), transparent 72%),
+    radial-gradient(22% 30% at 6% 98%, rgba(20,48,74,.9), transparent 70%),
+    radial-gradient(30% 64% at 104% 42%, rgba(255,255,255,.98), transparent 72%),
+    radial-gradient(18% 24% at 12% 30%, rgba(144,208,191,.75), transparent 70%),
+    radial-gradient(70% 26% at 50% 106%, rgba(34,111,92,.45), transparent 70%),
+    radial-gradient(18% 14% at 88% 92%, rgba(255,255,255,.7), transparent 70%),
+    linear-gradient(180deg, #4f6b7c 0%, #c4d8d2 30%, #eef4f1 55%, #d3e2dc 82%, #7d958e 100%);
+  --scene-base: #D3E2DC;
+  --ink: #0F2433; --ink-2: #29414F; --ink-3: #4B5F6C; --line-2: rgba(15,36,51,.2);
+  --shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 14px 34px -22px rgba(13,35,49,.5);
+  --accent: #1B4766; --on-accent: #fff; --accent-soft: rgba(27,71,102,.14); --accent-ink: #1B4766; --focus: #0D2331;
+  --orange: #1B4766; --orange-rgb: 27,71,102; --on-orange: #fff;
+  --dark: #0D2331; --dark-rgb: 13,35,49; --on-dark: #EEF4F1;
+  --primer: #1B4766; --on-primer: #fff;
+  --cta: #1B4766; --on-cta: #fff; --cta-rgb: 27,71,102; --cta-em: #90D0BF; --on-cta-em: #0F2433;
+  --sw-on: #226F5C;
+  --seg-on: #0D2331; --seg-on-ink: #EEF4F1;
+  --hero-bg: linear-gradient(150deg, #23597F 0%, #1B4766 52%, #0D2331 100%); --hero-rgb: 13,35,49;
+  --good: #226F5C; --good-soft: rgba(144,208,191,.38); --bad: #B3261E; --bad-soft: rgba(179,38,30,.13); --warn: #7A5600; --warn-soft: rgba(245,183,0,.24); --info: #1B4766; --info-soft: rgba(27,71,102,.12);
+  --bar-fill: #90D0BF;
+  --sheet-bg: rgba(238,244,241,.93); --backdrop: rgba(13,35,49,.32);
+  --tip-bg: rgba(13,35,49,.94); --tip-ink: #EEF4F1;
+  --grid: rgba(15,36,51,.14); --bar-hi-a: #23597F; --bar-hi-b: #1B4766; --bar-fut: rgba(15,36,51,.3); --tag-bg: #0D2331; --tag-ink: #EEF4F1;
+  --c1: #1B4766; --c2: #90D0BF; --c3: #226F5C; --c4: #23597F; --c5: #0D2331; --stack-1: #0D2331; --stack-2: #90D0BF;
+  --spark: #226F5C; --mini-last: #1B4766; --ring: #90D0BF;
+  --avatar-ink: #0D2331;
+  --bnav-ink: #0F2433; --bnav-ink-2: #4B5F6C; --bnav-on: #0F2433; --fab-bg: #EEF4F1; --fab-ink: #0D2331; --fab-shadow: rgba(13,35,49,.38);
+  --login-art-ink: #0F2433;
+  --tile-ic-bg: #0D2331; --nota-accent: #1B4766;
+  --pill: #EEF4F1; --bayang: 13,35,49; --garis-rgb: 15,36,51;
+  --av-bg: linear-gradient(140deg, #BDE5D9, #90D0BF 55%, #5FB6A0);
+  --orb: radial-gradient(circle at 35% 30%, #fff 0 8%, #BDE5D9 24%, #90D0BF 52%, #1B4766 100%); --orb-rgb: 144,208,191;
+  --pop-bg: rgba(242,248,245,.9); --pop-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 32px 64px -24px rgba(13,35,49,.55);
+  --sel-bg: rgba(144,208,191,.55); --scroll: rgba(15,36,51,.28); --scroll-hi: rgba(15,36,51,.46); --rel-bg: rgba(13,35,49,.08); --in-hover: rgba(15,36,51,.38); --pick-shadow: 0 8px 16px -8px rgba(13,35,49,.6);
+  --pv-bg: #EEF4F1;
+  accent-color: #1B4766; caret-color: #1B4766;
+}
+::selection { background: #90D0BF; color: #0F2433; }
+
+/* tepi atas: jalan navy dengan marka putus-putus mint, seperti rute antarkota di situs */
+html[data-model=m2] body::before {
+  content: ''; position: fixed; left: 0; right: 0; top: 0; height: 8px; z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, #90D0BF 0 22px, transparent 22px 40px) 0 50% / 100% 2px no-repeat, #0D2331;
+}
+
+/* tombol utama (navy lencana): bayangan navy */
+html[data-model=m2] .btn.primary { box-shadow: 0 10px 20px -12px rgba(27,71,102,.85); }
+/* avatar: huruf gelap di atas mint */
+.m2-user .av { color: #0F2433; }
+/* ubin kunci di dasbor: sudut hias jadi mint tipis */
+.m2-tile.teal::after { background: rgba(144,208,191,.32); }
+/* HP: gambar pembuka halaman masuk disembunyikan template, jadi lencana TWH pindah ke atas kartu masuk */
+@media (max-width: 759px) { .lc-brand { display: block; margin-bottom: 22px; } .lc-brand .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; } }
+
+/* foto mobil tanpa latar: papan catur terang di belakangnya supaya bagian transparan terlihat */
+.pf-gb.pf-mobil, .foto-besar.pf-mobil, .ff-gb, .dl-gb {
+  background-color: #F4F8F6;
+  background-image: linear-gradient(45deg, #E3ECE8 25%, transparent 25%), linear-gradient(-45deg, #E3ECE8 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #E3ECE8 75%), linear-gradient(-45deg, transparent 75%, #E3ECE8 75%);
+  background-size: 14px 14px; background-position: 0 0, 0 7px, 7px -7px, -7px 0;
+}
+.pf-gb.pf-mobil img, .ff-gb img, .dl-gb img { object-fit: contain !important; }
+
+/* titik lampu depan: ketuk foto mobil untuk memasang dua titik */
+.lampu { position: relative; display: block; border-radius: 14px; overflow: hidden; cursor: crosshair; background: #F4F8F6; touch-action: manipulation; }
+.lampu img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
+.lampu i { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; display: grid; place-items: center; font: 700 12px/1 var(--font); font-style: normal; color: #0F2433; background: #FFF6C8; box-shadow: 0 0 0 3px rgba(255,255,255,.9), 0 0 18px 6px rgba(255,236,150,.85); pointer-events: none; }
+.lampu-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+.hint.rp { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--ink-2); }

@@ -5,7 +5,11 @@
 (() => {
 'use strict';
 
-const KONFIG = { wa: '6281290608190' };
+// nomor WhatsApp dan telepon dari halaman (diatur di panel admin, src/rakit.mjs menulisnya di <body>)
+const KONFIG = { wa: document.body.dataset.waNomor || '6281290608190', telepon: document.body.dataset.telepon || '0812-9060-8190' };
+// pratinjau draf di panel admin (/admin/pratinjau/…, di dalam bingkai): tanpa intro, posisi gulir bertahan saat dimuat
+// ulang setelah draf tersimpan, dan panel bisa meminta gulir ke satu bagian (postMessage { ke: selektor })
+const PRATINJAU = location.pathname.startsWith('/admin/pratinjau');
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -38,6 +42,18 @@ const PESAN = {
 function setWa() { $$('[data-wa]').forEach((a) => { const f = PESAN[a.dataset.wa]; if (f) a.href = waUrl(f(a)); }); }
 setWa();
 
+if (PRATINJAU) {
+  const kunci = 'twh-pv-gulir:' + location.pathname;
+  let y = 0; try { y = +sessionStorage.getItem(kunci) || 0; } catch (e) { /* mode privat */ }
+  if (y) { history.scrollRestoration = 'manual'; addEventListener('load', () => scrollTo(0, y), { once: true }); }
+  addEventListener('pagehide', () => { try { sessionStorage.setItem(kunci, String(Math.round(scrollY))); } catch (e) { /* mode privat */ } });
+  addEventListener('message', (e) => {
+    if (e.origin !== location.origin || !e.data || typeof e.data.ke !== 'string') return;
+    let el = null; try { el = document.querySelector(e.data.ke); } catch (err) { /* selektor salah */ }
+    if (el) scrollTo(0, Math.max(0, el.getBoundingClientRect().top + scrollY - 90));
+  });
+}
+
 // ---------- intro beranda (sekali per sesi) ----------
 // Lencana TWH muncul di layar navy, garis segi enam mint tergambar mengelilinginya, petir di lencana berkilat. Lalu
 // layar navy menyusut menjadi segi enam yang terbang ke tanda TWH di kepala, membuka panggung mobil. Sekitar 2,4 detik;
@@ -53,7 +69,7 @@ let mulaiHero = () => {};
     try { sessionStorage.setItem('twh-intro', '1'); } catch (e) { /* mode privat */ }
   };
   let sudah = false; try { sudah = sessionStorage.getItem('twh-intro') === '1'; } catch (e) { /* mode privat */ }
-  if (reduced || hemat || sudah || !el.animate) { selesai(); return; }
+  if (reduced || hemat || sudah || PRATINJAU || !el.animate) { selesai(); return; }
   root.classList.add('intro-jalan', 'intro-tahan');
   const darurat = setTimeout(selesai, 6000);
   const KELUAR = 'cubic-bezier(.16,1,.3,1)', lapis = $('.intro-lapis', el), tanda = $('.intro-tanda', el);
@@ -119,7 +135,7 @@ function siapkanForm(form) {
     const ada = Object.keys(galat).some((k) => galat[k]);
     catatan.className = 'form-catatan' + (ada ? ' galat' : terkirim ? ' terkirim' : '');
     catatan.textContent = ada ? 'Periksa kolom yang ditandai merah.'
-      : terkirim ? 'WhatsApp terbuka di tab baru. Tidak terbuka? Salin pesan, lalu kirim ke 0812-9060-8190.'
+      : terkirim ? `WhatsApp terbuka di tab baru. Tidak terbuka? Salin pesan, lalu kirim ke ${KONFIG.telepon}.`
       : 'Tidak ada data yang disimpan di server. Pesan terbuka di WhatsApp dan Anda yang mengirimnya.';
     estimasi();
   }
@@ -255,7 +271,8 @@ if (grid) {
       const kap = KELAS_KURSI.find((k) => k >= n) || KELAS_KURSI[KELAS_KURSI.length - 1];
       const pas = ARMADA.filter((m) => m.kursi === kap);
       let t;
-      if (n <= 7) t = `Muat di satu mobil tujuh kursi: ${pas.slice(0, 3).map(tautan).join(', ')}, atau ${tautan(mobil('toyota-alphard'))} untuk yang paling nyaman.`;
+      const alphard = mobil('toyota-alphard');
+      if (n <= 7) t = `Muat di satu mobil tujuh kursi: ${pas.slice(0, 3).map(tautan).join(', ')}${alphard ? `, atau ${tautan(alphard)} untuk yang paling nyaman` : ''}.`;
       else if (kap === 15) t = `${tautan(pas[0])} muat 15 orang. Bisa juga dua mobil tujuh kursi.`;
       else t = `${pas.map(tautan).join(' atau ')} muat ${kap} orang${n > 15 && kap > 19 ? `, atau gabungan beberapa minibus` : ''}.`;
       saran.innerHTML = t;
@@ -686,7 +703,8 @@ const U_PANGGUNG = ['uRes', 'uTime', 'uLantai', 'uKA', 'uKB', 'uTA', 'uTB', 'uBl
   S = { gl, c, host, tempat, U: isi.U, tex: isi.tex, gambar: new Map(), daftar: DAFTAR, kini: 0, dari: -1, tGanti: 0, geser: [0, 0], geserT: [0, 0], sapu: -9, tSapu: 0, kilat: 0, tKilat: -1,
     auto: !reduced, tAuto: performance.now() + 6500, perlu: true, gulir: 0, kotak: null, ukurUlang: true, siap: false, terlihat: true, offA: 0, offB: 0, blurA: 0, blurB: 0, offLalu: [0, 0] };
   // tekstur mobil: yang pertama sekarang, sisanya di waktu senggang
-  const src = (m) => `/assets/armada/${m.slug}${kecil ? '-720' : ''}.webp?v=${kecil ? m.v7 : m.v}`;
+  // foto bawaan (/assets/armada/…) atau unggahan panel (/media/…): alamatnya ditulis src/rakit.mjs di #armada-data
+  const src = (m) => (kecil && m.src7) || m.src;
   const pasangTekstur = (X, m) => { const im = S.gambar.get(m.slug); if (im) X.tex.set(m.slug, tekstur(X.gl, im, false)); };
   const muat = (m) => S.gambar.has(m.slug) ? Promise.resolve() : muatGambar(src(m)).then((im) => { S.gambar.set(m.slug, im); pasangTekstur(S, m); S.perlu = true; bangun(); });
   muat(DAFTAR[0]).then(() => {

@@ -21,6 +21,31 @@ satu huruf (Archivo), warna dari lencana klien (mint `#90D0BF`, navy `#1B4766`),
 Semua tombol "Pesan" membuka lembar pesan: pilih mobil, kota, tanggal, jam, tempat serah; perkiraan harga dihitung
 otomatis (lama x harga per hari), lalu pesan lengkap terbuka di WhatsApp 0812-9060-8190. Tidak ada data yang disimpan.
 
+## Panel admin (/admin/)
+
+Pemilik ARSWORD, 2026-11-12: "saya ingin anda buatkan admin panel untuk twh rent car". Mesinnya dari panel Silibet
+Kreasi Indonesia (template dasbor "Kaca"), diwarnai TWH (navy, mint, Archivo, marka jalan di tepi atas).
+
+- **Isi**: `src/isi-awal.mjs` (dari `src/data.mjs`) memuat semua yang bisa diubah: armada (merek, model, varian, kelas,
+  kursi, transmisi, harga per hari, foto, panggung beranda, titik lampu, SEO), kota, layanan, langkah, dokumen, cara bayar,
+  FAQ, ulasan dan angka, kontak dan WhatsApp, teks setiap halaman, judul dan deskripsi Google. Halaman dirakit
+  `src/rakit.mjs`, dipakai `bangun.mjs` (halaman statis cadangan) dan Worker (versi terbit dari D1), jadi isi awal
+  menghasilkan halaman yang sama persis dengan situs sebelum ada panel.
+- **Worker** (`worker/`): `isi.js` draf per bagian (nomor revisi, 409 bila bentrok), terbitkan, riwayat, pulihkan;
+  `media.js` foto unggahan di R2 `twhrentcar-media` (WebP; PNG untuk foto tembus pandang); `auth.js` masuk dengan kode
+  email dan dengan tiket sekali pakai dari dashboard ARSWORD (Panel situs, pintu `TiketSitus`); `akun.js` akun admin
+  (pembuat = ARSWORD); `asisten.js` asisten Claude untuk admin ARSWORD (pintu `AsistenSitus` di Worker arswordlab, buku
+  catatan `asisten-catatan.js`). Halaman: `/`, `/armada/`, `/armada/<slug>/` untuk setiap mobil yang tampil,
+  `/sewa-mobil-<slug>/`, dan lainnya; `/robots.txt` dan `/sitemap.xml` ikut versi terbit; `/admin/pratinjau/*` = draf.
+- **Isian otomatis** di teks: `{jumlah}`, `{termurah}`, `{harga:<slug>}`, `{unit:<kota>}`, `{totalUnit}`; di halaman
+  mobil `{nama}`, `{model}`; di halaman kota `{kota}`, `{unit}`.
+- **Foto mobil baru**: PNG tanpa latar dari panel (Foto); ukurannya di D1, alamatnya `/media/<id>.webp`. Gambar bagikan
+  halaman mobil itu memakai fotonya sendiri sampai `alat/og.py` membuat kartu 1200x630.
+- **Maskot asisten**: mobil kecil mint (`public/admin/asisten.js`, `asisten.css`).
+- **Uji lokal**: `.claude/launch.json` di ARSWORDLAB, `twh-panel` (port 8847, D1/R2 lokal di `.wrangler/state`,
+  `DEV`/`DEV_MAIL`: kode masuk dikembalikan API). Sebelum pertama kali:
+  `wrangler d1 migrations apply twhrentcar --local --persist-to .wrangler/state`.
+
 ## Efek
 
 - **Intro** (sekali per sesi): lencana TWH muncul, garis segi enam tergambar, petir berkilat, lalu layar navy menyusut
@@ -52,9 +77,10 @@ Hasil di `public/` ikut di-commit.
 ### Hosting
 
 - **Cloudflare Workers** (akun arswordlab.com), Worker `twhrentcar`, rute `twhrentcar.arswordlab.com/*` (`wrangler.jsonc`):
-  menyajikan `public/` apa adanya (URL tanpa `.html`, garis miring di akhir, halaman 404). Header keamanan dan cache di
-  `public/_headers`, pengalihan foto lama `/pictcar/*` di `public/_redirects`. `worker/index.js` hanya mengalihkan
-  `http://` ke `https://`.
+  halaman dari panel admin (D1 `twhrentcar`, R2 `twhrentcar-media`, `send_email`), dengan `public/` sebagai cadangan
+  (URL tanpa `.html`, garis miring di akhir, halaman 404). Header keamanan dan cache di `public/_headers` (dan di
+  `worker/index.js` untuk halaman yang dirakit Worker), pengalihan foto lama `/pictcar/*` di `public/_redirects`.
+  `http://` dialihkan ke `https://`.
 - Deploy: push ke `main` di GitHub dulu, lalu dari folder ini
   `node ../ARSWORDLAB/arsword-pos/node_modules/wrangler/bin/wrangler.js deploy` (sampai Workers Builds disambungkan
   di dasbor Cloudflare; sesudah itu push ke `main` = tayang).

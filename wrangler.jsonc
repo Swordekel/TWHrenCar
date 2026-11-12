@@ -1,7 +1,8 @@
 // TWH Rent Car di Cloudflare Workers pada twhrentcar.arswordlab.com (sejak 2026-11-09; sebelumnya Vercel, yang kini
-// hanya mengalihkan twhrentcar.vercel.app ke sini, lihat vercel.json). Tanpa langkah build di server: situsnya berkas
-// biasa di ./public (node bangun.mjs, hasilnya ikut di-commit). Akun Cloudflare: milik arswordlab.com.
-// Deploy: push ke main di GitHub (Swordekel/TWHrenCar) dulu, lalu dari folder ini:
+// hanya mengalihkan twhrentcar.vercel.app ke sini, lihat vercel.json). Akun Cloudflare: milik arswordlab.com.
+// Halaman dirakit Worker dari isi panel admin (D1); halaman statis di ./public (node bangun.mjs, hasilnya ikut di-commit)
+// adalah cadangannya. Deploy: push ke main di GitHub (Swordekel/TWHrenCar) dulu, lalu dari folder ini:
+//   node bangun.mjs
 //   node ../ARSWORDLAB/arsword-pos/node_modules/wrangler/bin/wrangler.js deploy
 {
   "name": "twhrentcar",
@@ -14,14 +15,34 @@
   // alamatnya persis, dan rute yang paling spesifik yang menang. Nama ini juga dicadangkan di ARSWORD (RESERVED di
   // worker/sites.js).
   "routes": [{ "pattern": "twhrentcar.arswordlab.com/*", "zone_name": "arswordlab.com" }],
-  // berkas statis saja: formulir pesan membuka WhatsApp di perangkat pengunjung, jadi tidak ada server yang menerima data
   "assets": {
     "directory": "./public",
     "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page",
-    // Worker hanya untuk halaman (pengalihan http:// ke https://); gambar, font, CSS, dan JS langsung dari aset
-    "run_worker_first": ["/*", "!/assets/*", "!/styles.css", "!/app.js", "!/favicon.png", "!/apple-touch-icon.png"]
+    // Worker untuk halaman, panel admin dan API-nya, foto unggahan, robots, dan sitemap; gambar bawaan, font, CSS, JS,
+    // dan berkas panel langsung dari aset
+    "run_worker_first": ["/*", "!/assets/*", "!/styles.css", "!/app.js", "!/favicon.png", "!/apple-touch-icon.png", "!/admin/*.js", "!/admin/*.css", "!/admin/vendor/*", "!/admin/font/*"]
+  },
+  // isi situs (draf dan versi terbit), akun, sesi, kode masuk, aktivitas: migrations/*.sql
+  "d1_databases": [{ "binding": "DB", "database_name": "twhrentcar", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }],
+  // foto yang diunggah lewat panel admin
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "twhrentcar-media" }],
+  // kode masuk dan undangan admin lewat Cloudflare Email Service, sama seperti situs ARSWORD (arswordlab.com terdaftar)
+  "send_email": [{ "name": "EMAIL" }],
+  // masuk panel dari dashboard ARSWORD (arswordlab.com › Panel situs) tanpa kode: tiket sekali pakai ditukar lewat pintu
+  // TiketSitus di Worker arswordlab (worker/auth.js masukTiket). ASISTEN: asisten Claude di panel, khusus admin ARSWORD
+  // (worker/asisten.js); kunci Claude, batas harian, dan catatan pemakaiannya ada di Worker arswordlab (pintu
+  // AsistenSitus). Worker arswordlab yang mengenal situs "twhrentcar" harus sudah tayang lebih dulu.
+  "services": [
+    { "binding": "ARSWORD", "service": "arswordlab", "entrypoint": "TiketSitus" },
+    { "binding": "ASISTEN", "service": "arswordlab", "entrypoint": "AsistenSitus" }
+  ],
+  "vars": {
+    // akun pembuat (ARSWORD): selalu bisa masuk, mengelola akun admin dan pengaturan teknis; dipisah koma
+    "PEMBUAT": "swordekel@gmail.com",
+    "MAIL_FROM": "masuk@arswordlab.com",
+    "SITUS": "https://twhrentcar.arswordlab.com"
   },
   "observability": { "enabled": true }
 }
