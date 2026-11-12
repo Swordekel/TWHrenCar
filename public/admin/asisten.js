@@ -130,8 +130,17 @@
     const kosong = () => ({ riwayat: [], tampil: [], hasil: {} });
     let P = kosong();
     try { const s = JSON.parse(sessionStorage.getItem(KUNCI) || 'null'); if (s && Array.isArray(s.riwayat) && Array.isArray(s.tampil)) P = { ...kosong(), ...s }; } catch (e) { /* mode privat */ }
-    const simpanLokal = () => { try { sessionStorage.setItem(KUNCI, JSON.stringify(P)); } catch (e) { /* penuh atau mode privat */ } };
+    // (gambar yang sudah terkirim disimpan di tab tanpa bitanya: setelah halaman dimuat ulang, Claude mendapat baris
+    // pengganti, dan gambar kecilnya tetap terlihat di percakapan)
+    const tanpaBita = function (k, v) { return k === 'data' && this && this.type === 'base64' ? '' : v; };
+    const simpanLokal = () => { try { sessionStorage.setItem(KUNCI, JSON.stringify(P, tanpaBita)); } catch (e) { /* penuh atau mode privat */ } };
     let sibuk = null; // { henti, teks, status }
+    // gambar lampiran (vision; lihat "gambar lampiran" di bawah)
+    const G = { pesan: 5, percakapan: 20, bita: 2_000_000, total: 12_000_000, sisi: 1568 };
+    const LEPAS = '(Gambar yang dilampirkan di pesan ini tidak dikirim lagi supaya percakapan tetap ringan. Bila perlu, minta admin melampirkannya lagi.)';
+    let lampiran = []; // { id, jenis, data (base64), bita, kecil (data: URL) }: menunggu dikirim
+    let menyiapkan = 0; // gambar yang sedang diperkecil
+    const blokGb = (b) => !!(b && b.type === 'image' && b.source);
 
     const tombol = document.createElement('button');
     tombol.type = 'button';
@@ -151,7 +160,9 @@
         <button type="button" class="ai-ikon" data-ai="tutup" aria-label="Tutup asisten" title="Tutup">${ic('x')}</button></header>
       <div class="ai-isi" data-isi aria-live="polite"></div>
       <div class="ai-kaki">
-        <form class="ai-tulis" data-form><textarea rows="1" data-tulis placeholder="Tanya, atau tempel revisi dari klien…" aria-label="Pesan untuk asisten" maxlength="8000"></textarea>
+        <div class="ai-lampiran" data-lampiran aria-live="polite" hidden></div>
+        <form class="ai-tulis" data-form><label class="ai-lampir" title="Lampirkan gambar (bisa juga tempel atau seret ke sini)">${ic('image')}<input type="file" accept="image/*" multiple data-berkas aria-label="Lampirkan gambar"></label>
+          <textarea rows="1" data-tulis placeholder="Tanya, tempel revisi atau gambar…" aria-label="Pesan untuk asisten" maxlength="8000"></textarea>
           <button type="submit" class="ai-kirim" data-kirim aria-label="Kirim">${ic('send')}</button></form>
         <div class="ai-catatan">Usulan baru masuk draf setelah Anda menekan Terapkan; situs berubah setelah Terbitkan.</div>
       </div>`;
@@ -161,6 +172,7 @@
     const isi = laci.querySelector('[data-isi]');
     const ta = laci.querySelector('[data-tulis]');
     const kirimB = laci.querySelector('[data-kirim]');
+    laci.insertAdjacentHTML('beforeend', `<div class="ai-seret" aria-hidden="true"><span>${ic('image')}Lepaskan gambar di sini</span></div>`);
     let mkSambut = null;
     const mode = (m) => [mkTombol, mkKepala, mkSambut].filter(Boolean).forEach((x) => x.mode(m));
     let tSenang = 0;
@@ -221,11 +233,11 @@
       return `<div class="ai-kartu"><div class="ai-kartu-h"><span class="al-ic">${ic('board')}</span><div><b>${esc(k.judul)}</b><small>Permintaan kode untuk tim Claude</small></div></div><pre class="ai-kode">${esc(k.isi)}</pre>${aksi}</div>`;
     }
     const sambut = () => `<div class="ai-sambut"><span data-mk-sambut></span><h3>Halo, Kak! Saya asisten TWH.</h3>
-      <p>Saya hafal isi situs TWH Rent Car: mobil, harga, kota, dan FAQ-nya. Tanyakan apa saja, atau tempel revisi dari klien: saya siapkan perubahannya, Kakak tinggal menerapkan.</p>
+      <p>Saya hafal isi situs TWH Rent Car: mobil, harga, kota, dan FAQ-nya. Tanyakan apa saja, atau tempel revisi dari klien, juga tangkapan layarnya: saya siapkan perubahannya, Kakak tinggal menerapkan.</p>
       <div class="ai-saran">${SARAN.map((s) => `<button type="button" data-ai="saran">${esc(s)}</button>`).join('')}</div></div>`;
     const alirHTML = () => `${sibuk.teks ? md(sibuk.teks) : ''}${sibuk.status ? `<div class="ai-status">${esc(sibuk.status)}</div>` : ''}${!sibuk.teks ? '<span class="ai-mengetik" aria-label="Asisten sedang berpikir"><i></i><i></i><i></i></span>' : ''}`;
     function gambar() {
-      isi.innerHTML = P.tampil.length ? P.tampil.map((x, i) => (x.jenis === 'saya' ? `<div class="ai-pesan saya">${esc(x.teks)}</div>`
+      isi.innerHTML = P.tampil.length ? P.tampil.map((x, i) => (x.jenis === 'saya' ? `<div class="ai-pesan saya">${gelembungGambar(x.gambar)}${x.teks ? `<span>${esc(x.teks)}</span>` : ''}</div>`
         : x.jenis === 'dia' ? `<div class="ai-pesan dia">${md(x.teks)}</div>`
           : x.jenis === 'usulan' ? kartuUsulan(x, i)
             : x.jenis === 'kode' ? kartuKode(x, i)
@@ -247,14 +259,19 @@
       kirimB.classList.toggle('henti', !!sibuk);
       kirimB.innerHTML = sibuk ? ic('x') : ic('send');
       kirimB.setAttribute('aria-label', sibuk ? 'Hentikan jawaban' : 'Kirim');
-      kirimB.disabled = !sibuk && !ta.value.trim();
+      kirimB.disabled = !sibuk && (menyiapkan > 0 || (!ta.value.trim() && !lampiran.length));
     }
 
     async function tanya(teks) {
       teks = String(teks || '').trim();
-      if (!teks || sibuk) return;
+      if ((!teks && !lampiran.length) || sibuk) return;
+      if (menyiapkan) { NM.toast('Tunggu sebentar, gambarnya masih disiapkan.'); return; }
       if (P.riwayat.filter((m) => m.role === 'user').length >= MAKS_GILIRAN) { NM.toast('Percakapan ini sudah panjang. Mulai percakapan baru supaya asisten tetap cepat.', 'bad'); return; }
-      P.tampil.push({ jenis: 'saya', teks });
+      const kirimGambar = lampiran;
+      lampiran = [];
+      gambarLampiran();
+      P.tampil.push({ jenis: 'saya', teks, ...(kirimGambar.length ? { gambar: kirimGambar.map((g) => g.kecil) } : {}) });
+      siapkanRiwayat(kirimGambar);
       simpanLokal();
       const henti = new AbortController();
       sibuk = { henti, teks: '', status: '' };
@@ -268,7 +285,7 @@
         const res = await fetch('/admin/api/asisten', {
           method: 'POST', credentials: 'same-origin', cache: 'no-store', signal: henti.signal,
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ riwayat: P.riwayat, pesan: teks, hasil: P.hasil, layar: o.layar() }),
+          body: JSON.stringify({ riwayat: P.riwayat, pesan: teks, gambar: kirimGambar.map((g) => ({ jenis: g.jenis, data: g.data })), hasil: P.hasil, layar: o.layar() }),
         });
         if (!res.ok || !res.body) {
           const d = await res.json().catch(() => ({}));
@@ -302,6 +319,7 @@
       }
       sibuk = null;
       if (selesai) {
+        isiGambar(selesai.tambah, kirimGambar);
         P.riwayat.push(...selesai.tambah);
         P.hasil = {};
         if (selesai.teks) P.tampil.push({ jenis: 'dia', teks: selesai.teks + (selesai.terpotong ? '\n\n(Jawaban terpotong karena terlalu panjang.)' : '') });
@@ -311,6 +329,8 @@
       } else {
         // (pertanyaan tanpa jawaban tidak masuk percakapan yang diingat Claude: boleh ditanyakan lagi)
         P.tampil.push({ jenis: 'galat', teks: galat });
+        // (gambarnya kembali ke lampiran: bisa dikirim lagi)
+        if (kirimGambar.length && !lampiran.length) { lampiran = kirimGambar; gambarLampiran(); }
         mode('galat');
         setTimeout(() => { if (!sibuk) mode('diam'); }, 2200);
       }
@@ -325,6 +345,10 @@
       const i = +b.dataset.i, x = P.tampil[i];
       switch (b.dataset.ai) {
         case 'tutup': tutup(); return;
+        case 'lepas-gambar':
+          lampiran = lampiran.filter((g) => g.id !== b.dataset.g);
+          gambarLampiran(); perbaruiKirim(); ta.focus({ preventScroll: true });
+          return;
         case 'baru':
           if (sibuk) return;
           if (P.tampil.length && !(await NM.confirm('Mulai percakapan baru? Percakapan ini dihapus dari layar; usulan yang sudah diterapkan tetap di draf.', { ok: 'Mulai baru' }))) return;
@@ -385,6 +409,140 @@
       tanya(ta.value);
     });
     perbaruiKirim();
+
+    // ------------------------------------------------------------------ gambar lampiran (vision)
+    // Admin menempel (Ctrl+V, atau tahan lalu Tempel), menyeret ke laci, atau memilih gambar (tombol gambar; di HP:
+    // galeri, kamera, atau berkas): tangkapan layar revisi dari klien, foto. Gambar diperkecil di sini sebelum dikirim
+    // (sisi terpanjang paling panjang G.sisi px, WebP atau JPEG; Safari menulis JPEG) dan ikut pesan berikutnya.
+    // Server memeriksanya lagi (jenis, ukuran, jumlah: worker/gambar.js, lalu ARSWORD) dan menghitung tokennya.
+    // Gambar yang sudah terkirim ikut percakapan selama batasnya cukup; yang terlama dilepas (siapkanRiwayat).
+    function gelembungGambar(xs) {
+      const sah = (Array.isArray(xs) ? xs : []).filter((s) => /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(s));
+      return sah.length ? `<span class="ai-pesan-gb">${sah.map((s, j) => `<img src="${s}" alt="Gambar ${j + 1}">`).join('')}</span>` : '';
+    }
+    const stripEl = laci.querySelector('[data-lampiran]');
+    const berkasIn = laci.querySelector('[data-berkas]');
+
+    function gambarLampiran() {
+      stripEl.hidden = !lampiran.length && !menyiapkan;
+      stripEl.innerHTML = lampiran.map((g, i) => `<span class="ai-lamp"><img src="${g.kecil}" alt="Gambar ${i + 1}"><button type="button" class="ai-lamp-x" data-ai="lepas-gambar" data-g="${g.id}" aria-label="Hapus gambar ${i + 1}" title="Hapus">${ic('x')}</button></span>`).join('')
+        + Array.from({ length: menyiapkan }, () => '<span class="ai-lamp siap" role="status" aria-label="Menyiapkan gambar"><i></i></span>').join('');
+    }
+
+    // gambar dari berkas: ImageBitmap (arah foto dari Exif), atau <img> bila peramban tidak bisa
+    async function bukaGambar(f) {
+      if (window.createImageBitmap) {
+        try { return await createImageBitmap(f, { imageOrientation: 'from-image' }); } catch (e) { /* lewat <img> */ }
+      }
+      const url = URL.createObjectURL(f);
+      const img = new Image();
+      img.src = url;
+      try { await img.decode(); } catch (e) { URL.revokeObjectURL(url); throw e; }
+      img.lepas = () => URL.revokeObjectURL(url);
+      return img;
+    }
+    const kanvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+    const keBlob = (c, jenis, q) => new Promise((ok) => { try { c.toBlob((b) => ok(b), jenis, q); } catch (e) { ok(null); } });
+    const keB64 = (blob) => new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1] || ''); r.onerror = () => no(r.error); r.readAsDataURL(blob); });
+
+    async function perkecil(f) {
+      let src;
+      try { src = await bukaGambar(f); } catch (e) {
+        throw new Error(`"${(f.name || 'Gambar').slice(0, 40)}" tidak bisa dibaca peramban ini (misalnya HEIC). Simpan sebagai JPG atau PNG, lalu lampirkan lagi.`);
+      }
+      const sw = src.width || src.naturalWidth, sh = src.height || src.naturalHeight;
+      if (!sw || !sh) throw new Error('Gambar ini kosong atau rusak.');
+      const s = Math.min(1, G.sisi / Math.max(sw, sh));
+      const w = Math.max(1, Math.round(sw * s)), h = Math.max(1, Math.round(sh * s));
+      // (turun setengah demi setengah supaya tulisan kecil di tangkapan layar tetap terbaca)
+      let cur = src, cw = sw, ch = sh;
+      while (cw > w * 2) {
+        const nw = Math.round(cw / 2), nh = Math.round(ch / 2), c = kanvas(nw, nh), x = c.getContext('2d');
+        x.imageSmoothingQuality = 'high'; x.drawImage(cur, 0, 0, nw, nh);
+        cur = c; cw = nw; ch = nh;
+      }
+      const c = kanvas(w, h), x = c.getContext('2d');
+      x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); // (bagian tembus pandang jadi putih)
+      x.imageSmoothingQuality = 'high'; x.drawImage(cur, 0, 0, w, h);
+      if (src.close) src.close(); else if (src.lepas) src.lepas();
+      let blob = await keBlob(c, 'image/webp', 0.86);
+      if (!blob || blob.type !== 'image/webp') blob = await keBlob(c, 'image/jpeg', 0.86);
+      if (blob && blob.size > G.bita) blob = await keBlob(c, 'image/jpeg', 0.7);
+      if (!blob || !/^image\/(webp|jpeg)$/.test(blob.type)) throw new Error('Gambar tidak bisa disiapkan di peramban ini.');
+      if (blob.size > G.bita) throw new Error('Gambar terlalu besar walau sudah diperkecil. Potong gambarnya, lalu lampirkan lagi.');
+      const k = Math.min(1, 200 / Math.max(w, h)), ck = kanvas(Math.max(1, Math.round(w * k)), Math.max(1, Math.round(h * k)));
+      const xk = ck.getContext('2d');
+      xk.imageSmoothingQuality = 'high'; xk.drawImage(c, 0, 0, ck.width, ck.height);
+      return { id: 'g' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), jenis: blob.type, data: await keB64(blob), bita: blob.size, kecil: ck.toDataURL('image/jpeg', 0.72) };
+    }
+
+    async function tambahBerkas(daftar) {
+      const xs = [...(daftar || [])].filter(Boolean);
+      if (!xs.length) return;
+      const gb = xs.filter((f) => /^image\//.test(f.type) || (!f.type && /\.(jpe?g|png|webp|gif|heic|heif|avif|bmp)$/i.test(f.name || '')));
+      if (gb.length < xs.length) NM.toast('Hanya gambar yang bisa dilampirkan.', 'bad');
+      const sisa = G.pesan - lampiran.length - menyiapkan;
+      if (gb.length > sisa) NM.toast(`Paling banyak ${G.pesan} gambar dalam satu pesan.`, 'bad');
+      const ambil = gb.slice(0, Math.max(0, sisa));
+      if (!ambil.length) return;
+      menyiapkan += ambil.length;
+      gambarLampiran(); perbaruiKirim();
+      if (!sibuk) mode('dengar');
+      // (satu per satu: foto HP besar, memori ponsel terbatas)
+      for (const f of ambil) {
+        try { lampiran.push(await perkecil(f)); } catch (e) { NM.toast((e && e.message) || 'Gambar tidak bisa dibaca.', 'bad'); }
+        menyiapkan--;
+        gambarLampiran(); perbaruiKirim();
+      }
+      if (!sibuk) mode('diam');
+    }
+
+    // sebelum bertanya: gambar lama yang bitanya sudah tidak ada (halaman dimuat ulang) atau melewati batas percakapan
+    // (dihitung dari yang terbaru, termasuk yang akan dikirim) menjadi baris pengganti, dan tetap begitu
+    function siapkanRiwayat(baru) {
+      let n = baru.length, total = baru.reduce((s, g) => s + g.bita, 0);
+      for (let i = P.riwayat.length - 1; i >= 0; i--) {
+        const m = P.riwayat[i];
+        if (m.role !== 'user' || !Array.isArray(m.content) || !m.content.some(blokGb)) continue;
+        m.content = m.content.map((b) => {
+          if (!blokGb(b)) return b;
+          const bita = b.source.data ? Math.floor((b.source.data.length * 3) / 4) : 0;
+          if (bita && n < G.percakapan && total + bita <= G.total) { n++; total += bita; return b; }
+          return { type: 'text', text: LEPAS };
+        });
+      }
+    }
+    // giliran yang kembali dari server membawa gambar tanpa bitanya: diisi lagi dari yang tadi dikirim, berurutan
+    function isiGambar(tambah, kirim) {
+      const u = tambah && tambah[0];
+      if (!u || !Array.isArray(u.content)) return;
+      let k = 0;
+      u.content = u.content.map((b) => (blokGb(b) && !b.source.data ? (kirim[k] ? { type: 'image', source: { type: 'base64', media_type: kirim[k].jenis, data: kirim[k++].data } } : { type: 'text', text: LEPAS }) : b));
+    }
+
+    berkasIn.addEventListener('change', () => { const f = [...berkasIn.files]; berkasIn.value = ''; tambahBerkas(f); });
+    laci.addEventListener('paste', (e) => {
+      const cd = e.clipboardData;
+      if (!cd) return;
+      const f = [...(cd.files || [])].filter((x) => /^image\//.test(x.type));
+      if (!f.length) for (const it of cd.items || []) if (it.kind === 'file' && /^image\//.test(it.type)) { const x = it.getAsFile(); if (x) f.push(x); }
+      if (!f.length) return;
+      // (gambar dengan tulisan, mis. dari Word: tulisannya tetap masuk ke kolom pesan)
+      if (!cd.getData('text/plain')) e.preventDefault();
+      tambahBerkas(f);
+    });
+    let seretN = 0;
+    const adaBerkas = (e) => !!(e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files'));
+    laci.addEventListener('dragenter', (e) => { if (!adaBerkas(e)) return; e.preventDefault(); seretN++; laci.classList.add('seret'); });
+    laci.addEventListener('dragover', (e) => { if (!adaBerkas(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+    laci.addEventListener('dragleave', (e) => { if (!adaBerkas(e)) return; seretN = Math.max(0, seretN - 1); if (!seretN) laci.classList.remove('seret'); });
+    laci.addEventListener('drop', (e) => { if (!adaBerkas(e)) return; e.preventDefault(); seretN = 0; laci.classList.remove('seret'); tambahBerkas(e.dataTransfer.files); });
+    // (gambar diseret ke maskot di pojok: lacinya terbuka; selama laci terbuka, gambar yang terlepas di luar laci tidak
+    // membuka gambar itu di tab ini)
+    tombol.addEventListener('dragenter', (e) => { if (adaBerkas(e)) buka(); });
+    const lacinyaBuka = () => document.documentElement.classList.contains('ai-laci-buka');
+    document.addEventListener('dragover', (e) => { if (lacinyaBuka() && adaBerkas(e) && !e.defaultPrevented) e.preventDefault(); });
+    document.addEventListener('drop', (e) => { if (lacinyaBuka() && adaBerkas(e) && !e.defaultPrevented) e.preventDefault(); });
 
     return {
       email: o.email,
