@@ -81,3 +81,28 @@ export async function sajikanMedia(req, env, berkas) {
   if (req.headers.get('if-none-match') === obj.httpEtag) return new Response(null, { status: 304, headers: h });
   return new Response(req.method === 'HEAD' ? null : obj.body, { headers: h });
 }
+
+// Penyimpanan R2 situs ini dan perkiraan biayanya dalam rupiah (pemilik ARSWORD 2026-11-12: "pada tiap admin panel
+// menampilkan storage penggunaan R2 dan biaya rupiah nya berapa"; sama dengan kit panel ARSWORD,
+// racik-paket-pos/tools/kit-panel/worker/kit/media.js). Ukurannya dijumlah dari daftar objek di bucket, disimpan sebentar
+// di memori isolate. Tarif R2 Standard: $0,015 per GB per bulan; 10 GB pertama tiap bulan gratis untuk SELURUH akun
+// Cloudflare (dipakai bersama semua situs ARSWORD); operasi baca/tulis situs ini jauh di bawah jatah gratisnya, dan data
+// keluar (egress) selalu gratis. Kurs bisa diganti lewat variabel KURS_USD; bawaannya kurs tengah BI 9 November 2026.
+const TARIF_R2 = { usdPerGb: 0.015, gratisGb: 10, kurs: 18130, kursKet: 'kurs tengah BI 9 November 2026' };
+let SIMPAN_R2 = { pada: 0, data: null };
+export async function penyimpanan(env, segar = false) {
+  if (!segar && SIMPAN_R2.data && Date.now() - SIMPAN_R2.pada < 5 * 60_000) return json(SIMPAN_R2.data);
+  let bita = 0, objek = 0, cursor, halaman = 0;
+  do {
+    const r = await env.MEDIA.list({ cursor, limit: 1000 });
+    for (const o of r.objects) { bita += o.size; objek++; }
+    cursor = r.truncated ? r.cursor : undefined;
+  } while (cursor && ++halaman < 200);
+  const kurs = +env.KURS_USD > 0 ? +env.KURS_USD : TARIF_R2.kurs;
+  const gb = bita / 1e9, usd = gb * TARIF_R2.usdPerGb;
+  SIMPAN_R2 = { pada: Date.now(), data: {
+    bita, objek, gb, usd, rupiah: usd * kurs, kurs, kursKet: +env.KURS_USD > 0 ? 'kurs dari pengaturan Worker (KURS_USD)' : TARIF_R2.kursKet,
+    rupiahPerGb: TARIF_R2.usdPerGb * kurs, usdPerGb: TARIF_R2.usdPerGb, gratisGb: TARIF_R2.gratisGb, dihitung: Date.now(),
+  } };
+  return json(SIMPAN_R2.data);
+}

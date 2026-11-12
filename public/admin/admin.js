@@ -52,6 +52,7 @@
 
   // ------------------------------------------------------------------ ikon tambahan (gaya lucide, ISC)
   const IK = {
+    database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/>',
     trophy: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
     globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
     mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
@@ -705,13 +706,28 @@
     const dipakai = m.dipakai || fotoDraf().has(m.id);
     return `<button type="button" class="pf" data-aksi="media-buka" data-id="${esc(m.id)}"><span class="pf-gb pf-mobil"><img src="${esc(fotoUrl('m/' + m.id))}" alt="" loading="lazy"></span>${dipakai ? UI.badge('Dipakai', 'good') : ''}<b>${esc(m.nama || 'Foto unggahan')}</b><small>${ukuranTeks(m)}</small></button>`;
   }
+  // ------------------------------------------------------------------ penyimpanan R2 (GET penyimpanan, worker/media.js)
+  // ukuran semua berkas di bucket R2 situs ini dan perkiraan biayanya per bulan dalam rupiah (sama dengan kit panel ARSWORD)
+  const ukuranBita = (b) => (b >= 1e9 ? `${(b / 1e9).toFixed(2).replace('.', ',')} GB` : b >= 1e6 ? `${(b / 1e6).toFixed(1).replace('.', ',')} MB` : `${Math.round(b / 1e3)} KB`);
+  const rpR2 = (n) => 'Rp' + String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const rupiahKecil = (n) => (n > 0 && n < 1 ? 'kurang dari Rp1' : rpR2(n));
+  async function muatSimpan(segar = false) {
+    try { return await api('penyimpanan' + (segar ? '?segar=1' : ''), { diam: true }); } catch (e) { return null; }
+  }
+  const kartuSimpan = (d) => (d ? `<div class="simpan-r2">
+      <div class="sr-angka"><span><small>Terpakai</small><b>${esc(ukuranBita(d.bita))}</b><em>${d.objek} berkas (foto besar dan kecil)</em></span><span><small>Perkiraan biaya</small><b>${esc(rupiahKecil(d.rupiah))}</b><em>per bulan</em></span></div>
+      <div class="catatan">${ic('info')}<span>Tarif Cloudflare R2: $${String(d.usdPerGb).replace('.', ',')} per GB per bulan (sekitar ${esc(rpR2(d.rupiahPerGb))} per GB, ${esc(d.kursKet)}: ${esc(rpR2(d.kurs))} per dolar). ${d.gratisGb} GB pertama tiap bulan gratis untuk seluruh akun Cloudflare ARSWORD, dipakai bersama semua situs, jadi ${d.gb < d.gratisGb ? 'situs ini saat ini tidak menambah tagihan' : 'bagian di atas jatah gratis ditagih'}. Membuka foto (data keluar) tidak dikenai biaya.</span></div>
+    </div>` : UI.empty('Penyimpanan belum bisa dihitung', 'Coba muat ulang halaman ini.'));
   function pFoto() {
     LAYAR.setelah = async (root) => {
-      pasangUnggah(root, () => { const g = $('#pf-unggah'); if (g) g.innerHTML = gridMedia(); });
+      pasangUnggah(root, () => { const g = $('#pf-unggah'); if (g) g.innerHTML = gridMedia(); muatSimpan(true).then((d) => { const k = $('#pf-simpan'); if (k) k.innerHTML = kartuSimpan(d); }); });
+      muatSimpan().then((d) => { const k = $('#pf-simpan'); if (k) k.innerHTML = kartuSimpan(d); });
       try { const d = await api('media'); S.media = d.media; indeksMedia(); const g = $('#pf-unggah'); if (g) g.innerHTML = gridMedia(); } catch (e) { /* daftar lama tetap tampil */ }
     };
     return UI.head({ title: 'Foto', sub: 'Semua foto yang diunggah. Yang masih dipakai tidak bisa dihapus.' }) +
-      `<div class="ed-form">${zonaUnggah()}
+      `<div class="ed-form">
+        <section class="card"><header class="card-head"><div><h3>Penyimpanan (R2)</h3><p>Ruang yang dipakai unggahan situs ini dan biayanya</p></div></header><div id="pf-simpan"><div class="empty"><span class="putar"></span><b>Menghitung…</b></div></div></section>
+        ${zonaUnggah()}
         <section class="card"><header class="card-head"><div><h3>Foto unggahan</h3><p>Ketuk untuk melihat, mengubah nama, atau menghapusnya</p></div></header><div class="pf-grid" id="pf-unggah">${gridMedia()}</div></section>
         <details class="card bawaan-foto"><summary><span><b>Foto mobil bawaan</b><small>${S.bawaan.length} foto tanpa latar, dipasang ARSWORD</small></span>${ic('down')}</summary><div class="pf-grid">${S.bawaan.map((b) => `<div class="pf"><span class="pf-gb pf-mobil"><img src="${esc(b.kecil)}" alt="" loading="lazy"></span><b>${esc(b.nama.replace(/-/g, ' '))}</b><small>${b.w}×${b.h}</small></div>`).join('')}</div></details>
       </div>`;
@@ -917,8 +933,10 @@
       <ul class="auto-list">
         <li><span class="al-ic ${indeks ? '' : 'warn'}">${ic('search')}</span><div><b>${indeks ? 'Tampil di Google' : 'Disembunyikan dari Google'}</b><small>${indeks ? 'Mesin pencari boleh memasukkan situs ini' : 'Nyalakan lagi di Pengaturan › Tampil di Google'}</small></div>${pembuat() ? '<button type="button" class="al-go light" data-go="#/pengaturan/mesin">Atur</button>' : ''}</li>
         <li><span class="al-ic">${ic('history')}</span><div><b>${S.terbit ? `Versi ${S.terbit.id} tayang` : 'Tayang dari isi awal'}</b><small>${S.terbit ? esc(tglJam(S.terbit.pada)) : 'Terbitkan sekali untuk memakai isi panel'}</small></div><button type="button" class="al-go light" data-go="#/riwayat">Riwayat</button></li>
+        <li id="db-simpan"><span class="al-ic">${ic('database')}</span><div><b>Penyimpanan foto (R2)</b><small>Menghitung…</small></div><button type="button" class="al-go light" data-go="#C:/Program Files/Git/foto">Foto</button></li>
       </ul></section>`;
     LAYAR.setelah = async () => {
+      muatSimpan().then((d) => { const el = $('#db-simpan'); if (el && d) el.querySelector('div').innerHTML = `<b>Penyimpanan foto: ${esc(ukuranBita(d.bita))}</b><small>${esc(rupiahKecil(d.rupiah))} per bulan · ${d.gb < d.gratisGb ? 'masih dalam jatah gratis' : 'di atas jatah gratis'}</small>`; else if (el) el.querySelector('small').textContent = 'Belum bisa dihitung'; });
       try {
         const d = await api('riwayat');
         const el = $('#db-akt');
