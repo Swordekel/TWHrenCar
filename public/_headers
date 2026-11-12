@@ -6,6 +6,8 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
   X-Frame-Options: SAMEORIGIN
+  # HSTS: setahun selalu https (juga di jawaban Worker, worker/index.js denganHsts)
+  Strict-Transport-Security: max-age=31536000
 
 # gambar memakai penanda versi ?v= dari isi berkas (bangun.mjs), begitu juga styles.css dan app.js
 /assets/*

@@ -178,27 +178,42 @@ async function aset(req, env) {
   return res;
 }
 
+async function jawab(req, env, ctx) {
+  const url = new URL(req.url), p = url.pathname;
+  const kanon = alamatKanon(url, env);
+  if (kanon) return Response.redirect(kanon, 301);
+  try {
+    if (p.startsWith('/admin/api/')) return await api(req, env, p.slice('/admin/api/'.length), ctx);
+    if (p === '/admin/pratinjau' || p.startsWith('/admin/pratinjau/')) return await pratinjau(req, env, p.slice('/admin/pratinjau'.length) || '/');
+    if (p.startsWith('/media/')) return await sajikanMedia(req, env, p.slice('/media/'.length));
+    if (p === '/admin' || p === '/admin/') return await panelAdmin(req, env);
+    if (p === '/robots.txt') return await robots(env);
+    if (p === '/sitemap.xml') return await sitemap(req, env);
+    const baca = req.method === 'GET' || req.method === 'HEAD';
+    if (baca && POLA_HALAMAN.test(p)) return await halamanPublik(req, env, p);
+    // alamat halaman tanpa garis miring akhir (juga untuk mobil dan kota baru yang belum punya halaman statis)
+    if (baca && !p.endsWith('/') && POLA_HALAMAN.test(p + '/')) return Response.redirect(`${url.origin}${p}/${url.search}`, 301);
+    return await aset(req, env);
+  } catch (err) {
+    if (err instanceof GalatHttp) return json({ ok: false, kode: err.kode, pesan: err.message, ...(err.tambahan || {}) }, err.status);
+    console.error('galat', err && err.stack);
+    return json({ ok: false, kode: 'galat', pesan: 'Terjadi kesalahan di server. Coba lagi sebentar.' }, 500);
+  }
+}
+
+// HSTS: browser yang pernah membuka situs ini lewat https selalu memakai https setahun ke depan, juga bila alamatnya
+// diketik tanpa https di Wi-Fi umum (pemilik ARSWORD 2026-11-12). Di setiap jawaban Worker yang lewat https; berkas yang
+// langsung dari aset statis mendapatkannya dari public/_headers.
+const HSTS = 'max-age=31536000';
+function denganHsts(res, req, env) {
+  if (env.DEV === '1' || new URL(req.url).protocol !== 'https:' || res.status === 101 || res.headers.get('strict-transport-security') === HSTS) return res;
+  const h = new Headers(res.headers);
+  h.set('strict-transport-security', HSTS);
+  return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h });
+}
+
 export default {
   async fetch(req, env, ctx) {
-    const url = new URL(req.url), p = url.pathname;
-    const kanon = alamatKanon(url, env);
-    if (kanon) return Response.redirect(kanon, 301);
-    try {
-      if (p.startsWith('/admin/api/')) return await api(req, env, p.slice('/admin/api/'.length), ctx);
-      if (p === '/admin/pratinjau' || p.startsWith('/admin/pratinjau/')) return await pratinjau(req, env, p.slice('/admin/pratinjau'.length) || '/');
-      if (p.startsWith('/media/')) return await sajikanMedia(req, env, p.slice('/media/'.length));
-      if (p === '/admin' || p === '/admin/') return await panelAdmin(req, env);
-      if (p === '/robots.txt') return await robots(env);
-      if (p === '/sitemap.xml') return await sitemap(req, env);
-      const baca = req.method === 'GET' || req.method === 'HEAD';
-      if (baca && POLA_HALAMAN.test(p)) return await halamanPublik(req, env, p);
-      // alamat halaman tanpa garis miring akhir (juga untuk mobil dan kota baru yang belum punya halaman statis)
-      if (baca && !p.endsWith('/') && POLA_HALAMAN.test(p + '/')) return Response.redirect(`${url.origin}${p}/${url.search}`, 301);
-      return await aset(req, env);
-    } catch (err) {
-      if (err instanceof GalatHttp) return json({ ok: false, kode: err.kode, pesan: err.message, ...(err.tambahan || {}) }, err.status);
-      console.error('galat', err && err.stack);
-      return json({ ok: false, kode: 'galat', pesan: 'Terjadi kesalahan di server. Coba lagi sebentar.' }, 500);
-    }
+    return denganHsts(await jawab(req, env, ctx), req, env);
   },
 };
