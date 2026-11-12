@@ -25,7 +25,7 @@
     "run_worker_first": ["/*", "!/assets/*", "!/styles.css", "!/app.js", "!/favicon.png", "!/apple-touch-icon.png", "!/admin/*.js", "!/admin/*.css", "!/admin/vendor/*", "!/admin/font/*"]
   },
   // isi situs (draf dan versi terbit), akun, sesi, kode masuk, aktivitas: migrations/*.sql
-  "d1_databases": [{ "binding": "DB", "database_name": "twhrentcar", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }],
+  "d1_databases": [{ "binding": "DB", "database_name": "twhrentcar", "database_id": "6a8c2c79-99ac-4ea5-92c2-c729f2d1c3fe", "migrations_dir": "migrations" }],
   // foto yang diunggah lewat panel admin
   "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "twhrentcar-media" }],
   // kode masuk dan undangan admin lewat Cloudflare Email Service, sama seperti situs ARSWORD (arswordlab.com terdaftar)
