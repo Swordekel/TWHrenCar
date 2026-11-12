@@ -12,12 +12,12 @@ export function kartuMobil(c, m, judulTag = 'h3') {
     <${judulTag} class="kartu-nama"><a href="/armada/${m.slug}/">${esc(m.nama)}</a></${judulTag}>
     <p class="kartu-trim">${esc(m.trim)}</p>
     <ul class="kartu-spek" aria-label="Spesifikasi">
-      <li>${ikon('kursi')}${m.kursi} kursi</li>
+      <li>${ikon('kursi')}${m.kursi} ${esc(c.Kc.kursi)}</li>
       <li>${ikon('gigi')}${esc(m.transmisi.replace(/ \(.*\)/, ''))}</li>
     </ul>
     <div class="kartu-bawah">
-      <p class="harga"><strong>${rupiah(m.harga)}</strong><span>/hari</span></p>
-      <a class="pill pill-kecil pill-navy" href="/kontak/?mobil=${m.slug}#pesan" data-pesan="${m.slug}">Pesan</a>
+      <p class="harga"><strong>${rupiah(m.harga)}</strong><span>${esc(c.Kc.hari)}</span></p>
+      <a class="pill pill-kecil pill-navy" href="/kontak/?mobil=${m.slug}#pesan" data-pesan="${m.slug}">${esc(c.Kc.pesan)}</a>
     </div>
   </div>
 </article>`;
@@ -36,7 +36,7 @@ export function peta(c, dengan = true) {
     <path class="peta-rute" d="${rute(kota.map(({ t }) => t.xy))}" pathLength="1"/>
     ${kota.map(({ k, t }) => { const [x, y] = t.xy, [lx, ly, ta] = letakLabel(k); return `<a class="peta-pin" href="/sewa-mobil-${k.slug}/" data-kota="${k.slug}" aria-label="Sewa mobil ${esc(k.nama)}, ${esc(k.unit)} unit">
       <circle class="peta-denyut" cx="${x}" cy="${y}" r="12"/><circle class="peta-titik" cx="${x}" cy="${y}" r="7"/>
-      <text x="${x + lx}" y="${y + ly}" text-anchor="${ta}">${esc(k.nama)}${dengan ? `<tspan class="peta-unit" dx="8">${esc(k.unit)} unit</tspan>` : ''}</text></a>`; }).join('\n    ')}
+      <text x="${x + lx}" y="${y + ly}" text-anchor="${ta}">${esc(k.nama)}${dengan ? `<tspan class="peta-unit" dx="8">${esc(k.unit)} ${esc(c.Kc.unit)}</tspan>` : ''}</text></a>`; }).join('\n    ')}
   </svg>`;
 }
 
@@ -55,10 +55,10 @@ export const ulasan = (c) => {
   <div class="ulasan-skor">
     <p class="ulasan-angka">${esc(A.rating)}</p>
     <p class="bintang" aria-label="Rating ${esc(A.rating)} dari 5">${ikon('bintang').repeat(5)}</p>
-    <p class="ulasan-dari">dari ${esc(A.ulasan)} ulasan di Google</p>
-    <a class="tautan-panah" href="${href(D.KONTAK.maps)}" target="_blank" rel="noopener">Baca ulasannya ${ikon('panah')}</a>
+    <p class="ulasan-dari">${esc(String(c.Kc.ulasanDari).replace('{ulasan}', A.ulasan))}</p>
+    <a class="tautan-panah" href="${href(D.KONTAK.maps)}" target="_blank" rel="noopener">${esc(c.Kc.bacaUlasan)} ${ikon('panah')}</a>
   </div>
-  ${D.ULASAN.map((u) => `<figure class="ulasan-kutip"><blockquote><p>“${c.t(u.teks)}”</p></blockquote><figcaption><strong>${esc(u.nama)}</strong><span>Menyewa ${esc(u.mobil)}</span></figcaption></figure>`).join('')}
+  ${D.ULASAN.map((u) => `<figure class="ulasan-kutip"><blockquote><p>“${c.t(u.teks)}”</p></blockquote><figcaption><strong>${esc(u.nama)}</strong><span>${esc(c.Kc.menyewa)} ${esc(u.mobil)}</span></figcaption></figure>`).join('')}
 </div>`;
 };
 
@@ -78,9 +78,9 @@ export const heroHalaman = (c, { judul, teks, mobil, tombol = '' }) => `<section
 export const angka = (c) => {
   const A = c.D.ANGKA, esc = c.esc;
   return `<dl class="angka">
-  <div><dt>Armada</dt><dd><span data-hitung="${esc(A.armada)}">${esc(A.armada)}</span>+</dd></div>
-  <div><dt>Kota</dt><dd><span data-hitung="${esc(A.kota)}">${esc(A.kota)}</span></dd></div>
-  <div><dt>Rating Google</dt><dd>${esc(A.rating)}</dd></div>
-  <div><dt>Melayani</dt><dd>24<small> jam</small></dd></div>
+  <div><dt>${esc(c.Kc.angkaArmada)}</dt><dd><span data-hitung="${esc(A.armada)}">${esc(A.armada)}</span>+</dd></div>
+  <div><dt>${esc(c.Kc.angkaKota)}</dt><dd><span data-hitung="${esc(A.kota)}">${esc(A.kota)}</span></dd></div>
+  <div><dt>${esc(c.Kc.angkaRating)}</dt><dd>${esc(A.rating)}</dd></div>
+  <div><dt>${esc(c.Kc.angkaMelayani)}</dt><dd>${esc(c.Kc.angkaJam)}<small> ${esc(c.Kc.angkaJamSatuan)}</small></dd></div>
 </dl>`;
 };

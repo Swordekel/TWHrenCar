@@ -80,7 +80,7 @@
     situs: 'Identitas & kontak', angka: 'Angka di beranda', umum: 'Tulisan di semua halaman', halaman: 'Judul & Google',
     beranda: 'Beranda', armadaHal: 'Halaman Armada', layananHal: 'Halaman Layanan', caraHal: 'Halaman Cara sewa',
     lokasiHal: 'Halaman Lokasi', kontakHal: 'Halaman Kontak', mobilHal: 'Halaman mobil', kotaHal: 'Halaman kota',
-    kaki: 'Ajakan di bawah halaman', kelas: 'Kelas mobil', armada: 'Armada & harga', kota: 'Kota', layanan: 'Layanan',
+    kaki: 'Ajakan di bawah halaman', kecil: 'Tulisan kecil', kelas: 'Kelas mobil', armada: 'Armada & harga', kota: 'Kota', layanan: 'Layanan',
     langkah: 'Langkah sewa', syarat: 'Dokumen', faq: 'Pertanyaan (FAQ)', ulasan: 'Ulasan',
   };
   const NAV = [
@@ -495,7 +495,7 @@
 
   // ------------------------------------------------------------------ halaman & teks
   const ISIAN = 'Isian otomatis: {jumlah} = jumlah mobil yang tampil, {termurah} = harga termurah, {harga:toyota-avanza} = harga satu mobil (alamat halamannya), {unit:jakarta} = unit satu kota, {totalUnit} = unit semua kota.';
-  const seo = (k) => ({ j: 'Judul tab & Google', s: 'Tampil di tab peramban, hasil Google, dan saat tautan dibagikan', f: [T(`halaman.${k}.judul`, 'Judul', { hitung: 60, maks: 140 }), P(`halaman.${k}.deskripsi`, 'Deskripsi', { hitung: 160, maks: 320, baris: 3, hint: ISIAN }), T(`halaman.${k}.og`, 'Kalimat gambar bagikan', { maks: 120, hint: 'Kalimat pendek tentang gambar saat tautan dibagikan (dibacakan pembaca layar).' })] });
+  const seo = (k) => ({ j: 'Judul tab & Google', s: 'Tampil di tab peramban, hasil Google, dan saat tautan dibagikan', f: [T(`halaman.${k}.judul`, 'Judul', { hitung: 60, maks: 140 }), P(`halaman.${k}.deskripsi`, 'Deskripsi', { hitung: 160, maks: 320, baris: 3, hint: ISIAN }), T(`halaman.${k}.og`, 'Kalimat gambar bagikan', { maks: 120, hint: 'Kalimat pendek tentang gambar saat tautan dibagikan (dibacakan pembaca layar).' }), FT(`halaman.${k}.ogFoto`, 'Gambar saat tautan dibagikan', { opt: true, hint: 'WhatsApp, Facebook, dan lainnya. Ukuran 1200×630. Kosong = gambar bawaan halaman ini.' })] });
   const opsiMobil = (kosong) => [...(kosong ? [{ v: '', l: kosong }] : []), ...S.isi.armada.map((m) => ({ v: m.slug, l: `${namaMobil(m)}${m.tampil === false ? ' (disembunyikan)' : ''}` }))];
   const pertamaTampil = (xs) => (xs.find((x) => x.tampil !== false) || xs[0] || {}).slug || '';
 
@@ -542,6 +542,47 @@
     ] },
     kaki: { l: 'Ajakan bawah', pv: '/kontak/', g: () => [
       { j: 'Ajakan di bawah setiap halaman', s: 'Bersama gantungan kunci yang bisa digoyang', ke: '#ajakan', f: [T('kaki.judul', 'Judul'), P('kaki.teks', 'Teks', { baris: 2 }), T('kaki.tautan', 'Tautan ke formulir'), T('kaki.petunjuk', 'Petunjuk kecil'), CT('Tombol WhatsApp diatur di Pengaturan › Identitas.')] },
+    ] },
+    // tulisan kecil di seluruh situs (isi.kecil): label menu, formulir, kartu dan halaman mobil, dan lainnya
+    kecil: { l: 'Tulisan kecil', pv: '/kontak/', g: () => [
+      { j: 'Menu dan kaki', s: 'Di semua halaman. Nama usaha di logo diatur di Pengaturan › Identitas.', ke: '#kepala', f: [
+        BR(T('kecil.navBeranda', 'Menu: Beranda'), T('kecil.navArmada', 'Menu: Armada')), BR(T('kecil.navLayanan', 'Menu: Layanan'), T('kecil.navCara', 'Menu: Cara Sewa')),
+        BR(T('kecil.navLokasi', 'Menu: halaman Lokasi'), T('kecil.navKontak', 'Menu: Kontak')), BR(T('kecil.halLokasi', 'Nama halaman Lokasi (kaki, remah roti)'), T('kecil.kakiHalaman', 'Kaki: judul kolom halaman')),
+        BR(T('kecil.kakiArmada', 'Kaki: judul kolom armada'), T('kecil.kakiKota', 'Kaki: judul kolom kota')), BR(T('kecil.sewa', 'Awalan nama mobil ("Sewa")'), T('kecil.sewaMobil', 'Awalan nama kota ("Sewa mobil")')),
+        BR(T('kecil.sejak', 'Kata sebelum tahun berdiri'), T('kecil.lewati', 'Tautan "langsung ke isi" (pembaca layar)')),
+      ] },
+      { j: 'Formulir pesan', s: 'Di halaman Kontak dan lembar "Pesan mobil"', ke: '#pesan', f: [
+        BR(T('kecil.fMobil', 'Label mobil'), T('kecil.fMobilKosong', 'Pilihan mobil kosong')), BR(T('kecil.fKota', 'Label kota'), T('kecil.fJam', 'Label jam ambil')),
+        BR(T('kecil.fMulai', 'Label tanggal ambil'), T('kecil.fSelesai', 'Label tanggal kembali')), T('kecil.fTempat', 'Label tempat penyerahan'),
+        P('kecil.fTempatPilihan', 'Pilihan tempat (satu per baris)', { baris: 4, hint: 'Pilihan pertama = garasi: isian alamat tidak muncul. Pilihan lain meminta alamat.' }),
+        BR(T('kecil.fAlamat', 'Label alamat'), T('kecil.fAlamatPh', 'Contoh di kolom alamat')), BR(T('kecil.fNama', 'Label nama'), T('kecil.fNamaPh', 'Contoh di kolom nama')),
+        BR(T('kecil.fCatatan', 'Label catatan'), T('kecil.fCatatanPh', 'Contoh di kolom catatan')), T('kecil.fOpsional', 'Tanda kolom boleh kosong'),
+        BR(T('kecil.fKirim', 'Tombol kirim'), T('kecil.fSalin', 'Tombol salin')), P('kecil.fBawah', 'Catatan di bawah formulir', { baris: 2 }),
+      ] },
+      { j: 'Kartu dan halaman mobil', ke: '.spek', f: [
+        BR(T('kecil.kursi', 'Kata "kursi"'), T('kecil.hari', 'Akhiran harga ("/hari")')), BR(T('kecil.pesan', 'Tombol "Pesan"'), T('kecil.mulai', 'Kata sebelum harga ("Mulai")')),
+        BR(T('kecil.tersediaDi', 'Sebelum daftar kota'), T('kecil.bandingkan', 'Tautan bandingkan armada')), BR(T('kecil.kendaraan', 'Spesifikasi: kendaraan'), T('kecil.varian', 'Spesifikasi: varian')),
+        BR(T('kecil.jenis', 'Spesifikasi: jenis'), T('kecil.kapasitas', 'Spesifikasi: kapasitas')), BR(T('kecil.penumpang', 'Kata "penumpang"'), T('kecil.transmisi', 'Spesifikasi: transmisi')),
+        BR(T('kecil.hargaSewa', 'Spesifikasi: harga sewa'), T('kecil.perHari', 'Kata "per hari"')), BR(T('kecil.kotaLabel', 'Spesifikasi: kota'), T('kecil.penyerahan', 'Spesifikasi: penyerahan')),
+        T('kecil.semuaArmada', 'Tautan semua armada'),
+      ] },
+      { j: 'Beranda: cek ketersediaan, angka, ulasan', ke: '#cek', f: [
+        BR(T('kecil.cekAmbil', 'Cek: label ambil'), T('kecil.cekKembali', 'Cek: label kembali')), BR(T('kecil.cekSemua', 'Cek: semua kendaraan'), T('kecil.cekTombol', 'Cek: tombol')),
+        BR(T('kecil.angkaArmada', 'Angka: armada'), T('kecil.angkaKota', 'Angka: kota')), BR(T('kecil.angkaRating', 'Angka: rating'), T('kecil.angkaMelayani', 'Angka: melayani')),
+        BR(T('kecil.angkaJam', 'Angka melayani', { hint: 'Angkanya diatur di Pengaturan › Angka untuk armada, kota, dan rating.' }), T('kecil.angkaJamSatuan', 'Satuan (jam)')),
+        T('kecil.ulasanDari', 'Di bawah rating ulasan', { hint: '{ulasan} = jumlah ulasan.' }), BR(T('kecil.bacaUlasan', 'Tautan baca ulasan'), T('kecil.menyewa', 'Sebelum mobil yang disewa')),
+      ] },
+      { j: 'Armada, layanan, cara sewa', ke: '#daftar', f: [
+        BR(T('kecil.orang', 'Pemilih penumpang: "orang"'), T('kecil.semua', 'Saringan: semua')), T('kecil.kosong', 'Bila tidak ada yang muat', { hint: '{maks} = kursi kendaraan terbesar.' }),
+        T('kecil.kosongTautan', 'Tautan bila tidak ada yang muat'), BR(T('kecil.kursiKolom', 'Tabel harga: kursi'), T('kecil.hargaHari', 'Tabel harga: harga per hari')),
+        BR(T('kecil.cocok', 'Layanan: "Paling cocok"'), T('kecil.mulaiKecil', 'Layanan: "mulai"')), BR(T('kecil.tanya', 'Layanan: awalan tombol tanya'), T('kecil.centang', 'Cara sewa: ajakan centang syarat')),
+      ] },
+      { j: 'Lokasi, kontak, halaman kota', ke: '.kontak-cara', f: [
+        BR(T('kecil.unit', 'Kata "unit"'), T('kecil.garasiUtama', 'Tanda garasi utama')), T('kecil.tampilPeta', 'Tombol tampilkan peta'),
+        BR(T('kecil.kontakWa', 'Kontak: WhatsApp'), T('kecil.kontakTelepon', 'Kontak: telepon')), BR(T('kecil.kontakGarasi', 'Kontak: garasi'), T('kecil.kontakJam', 'Kontak: jam layanan')),
+        BR(T('kecil.pesanDi', 'Kota: awalan tombol pesan'), T('kecil.unitTersedia', 'Kota: "unit tersedia"')), BR(T('kecil.bandara', 'Kota: judul bandara'), T('kecil.jugaDiantar', 'Kota: judul juga diantar ke')),
+        T('kecil.ambilSendiri', 'Kota: sebelum alamat garasi'),
+      ] },
     ] },
   };
   const pvDari = (h) => (typeof h.pv === 'function' ? h.pv() : h.pv);
@@ -610,6 +651,7 @@
       { t: 'lampu', p: 'lampu', l: 'Titik lampu depan', jika: (x) => +x.hero > 0 && !!x.foto, hint: 'Lampu ini berkedip saat mobil di panggung diklik.' },
       T('judulSeo', 'Judul di Google', { opt: true, hitung: 60, maks: 140, ph: 'Kosong = dibuat otomatis dari nama dan harga' }),
       P('deskripsiSeo', 'Deskripsi di Google', { opt: true, hitung: 155, maks: 320, baris: 2, ph: 'Kosong = dibuat otomatis' }),
+      FT('ogFoto', 'Gambar saat tautan dibagikan', { opt: true, hint: 'WhatsApp, Facebook, dan lainnya. Ukuran 1200×630. Kosong = kartu bawaan mobil ini (atau foto mobilnya).' }),
     ],
     ketItem: (x) => `Halaman mobil ini: /armada/${esc(x.slug)}/`,
   });
@@ -668,6 +710,7 @@
       P('cerita', 'Cerita kota', { baris: 4 }),
       T('judulSeo', 'Judul di Google', { opt: true, hitung: 60, maks: 140, ph: 'Kosong = dibuat otomatis' }),
       P('deskripsiSeo', 'Deskripsi di Google', { opt: true, hitung: 155, maks: 320, baris: 2, ph: 'Kosong = dibuat otomatis' }),
+      FT('ogFoto', 'Gambar saat tautan dibagikan', { opt: true, hint: 'WhatsApp, Facebook, dan lainnya. Ukuran 1200×630. Kosong = kartu bawaan kota ini (kota baru: gambar beranda).' }),
     ],
     ketItem: (x) => `Halaman kota ini: /sewa-mobil-${esc(x.slug)}/`,
   });

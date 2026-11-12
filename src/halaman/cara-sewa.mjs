@@ -26,7 +26,7 @@ ${heroHalaman(c, { judul: C.judul, teks: C.teks, mobil: mobilBySlug(C.mobil) })}
     <ul class="syarat" id="syarat-daftar">
       ${D.SYARAT.map((s) => `<li><button type="button" class="syarat-cek" aria-pressed="false">${ikon('cek')}<span class="syarat-nama">${esc(s.nama)}</span><span class="syarat-teks">${t(s.teks)}</span></button></li>`).join('\n      ')}
     </ul>
-    <p class="syarat-status" id="syarat-status" aria-live="polite">Centang yang sudah Anda siapkan.</p>
+    <p class="syarat-status" id="syarat-status" aria-live="polite">${esc(c.Kc.centang)}</p>
   </div>
 </section>
 

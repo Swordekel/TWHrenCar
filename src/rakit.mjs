@@ -189,6 +189,12 @@ function alatLengkap(alat) {
 export function rakit(h, isi, alatAwal) {
   const A = alatLengkap(alatAwal), { versi, infoFoto, situs } = A;
   const D = dataDari(isi), K = D.KONTAK, NAMA = D.NAMA;
+  // tulisan kecil dari panel (Halaman › Tulisan kecil): menu, formulir, label kartu dan halaman mobil, dan lainnya
+  const Kc = isi.kecil;
+  const labelNav = (x) => ({ armada: Kc.navArmada, layanan: Kc.navLayanan, 'cara-sewa': Kc.navCara, lokasi: Kc.navLokasi, kontak: Kc.navKontak }[x.kunci] ?? x.nav);
+  // pilihan tempat penyerahan di formulir, satu per baris; yang pertama = garasi (tanpa isian alamat)
+  const tempatPilihan = String(Kc.fTempatPilihan || '').split('\n').map((x) => x.trim()).filter(Boolean);
+  if (!tempatPilihan.length) tempatPilihan.push('Garasi kami');
   const HALAMAN = daftarHalaman(isi, D);
   const t = (s, lokal) => esc(isiTeks(D, s, lokal));
   const aset = (rel) => `/assets/${rel}?v=${versi('assets/' + rel)}`;
@@ -216,8 +222,12 @@ export function rakit(h, isi, alatAwal) {
 </div>`;
 
   // ---------- gambar bagikan ----------
-  // kartu JPG 1200x630 (alat/og.py) bila ada dan masih cocok; mobil dengan foto unggahan memakai fotonya sendiri
+  // gambar yang dipasang di panel (halaman tetap, mobil, kota) lebih dulu; lalu kartu JPG 1200x630 (alat/og.py) bila ada
+  // dan masih cocok; mobil dengan foto unggahan memakai fotonya sendiri
   const ogDari = (x) => {
+    const pasang = x.mobil ? x.mobil.ogFoto : x.kota ? x.kota.ogFoto : ((isi.halaman || {})[x.kunci] || {}).ogFoto;
+    const fp = pasang && infoFoto(pasang);
+    if (fp) return { url: url(fp.polos), v: '', w: fp.w, h: fp.h, jenis: fp.jenis };
     const rel = `assets/og/${x.kunci}.jpg`;
     const fotoBaru = x.mobil && x.mobil.foto !== x.mobil.slug;
     if (A.ada && A.ada(rel) && !fotoBaru) return { url: url(`/${rel}`), v: versi(rel), w: 1200, h: 630, jenis: 'image/jpeg' };
@@ -295,30 +305,30 @@ export function rakit(h, isi, alatAwal) {
   }
 
   // ---------- formulir pesan ----------
-  const pilihanMobil = D.KELAS.map((k) => `<optgroup label="${esc(k.label)}">${D.ARMADA.filter((m) => m.kelas === k.id).map((m) => `<option value="${m.slug}">${esc(m.nama)} · ${rupiah(m.harga)}/hari</option>`).join('')}</optgroup>`).join('');
+  const pilihanMobil = D.KELAS.map((k) => `<optgroup label="${esc(k.label)}">${D.ARMADA.filter((m) => m.kelas === k.id).map((m) => `<option value="${m.slug}">${esc(m.nama)} · ${rupiah(m.harga)}${esc(Kc.hari)}</option>`).join('')}</optgroup>`).join('');
   function formPesan(id) {
     const f = (n) => `${id}-${n}`;
     return `<form class="form-pesan" id="${id}" data-form-pesan novalidate>
   <div class="isian">
-    <label class="kolom kolom-lebar" for="${f('mobil')}"><span>Mobil</span>
-      <select id="${f('mobil')}" name="mobil"><option value="">Belum tahu, minta saran</option>${pilihanMobil}</select></label>
-    <fieldset class="kolom kolom-lebar"><legend>Kota</legend>
+    <label class="kolom kolom-lebar" for="${f('mobil')}"><span>${esc(Kc.fMobil)}</span>
+      <select id="${f('mobil')}" name="mobil"><option value="">${esc(Kc.fMobilKosong)}</option>${pilihanMobil}</select></label>
+    <fieldset class="kolom kolom-lebar"><legend>${esc(Kc.fKota)}</legend>
       <div class="chips" data-chips="kota">${D.KOTA.map((k, i) => `<button type="button" aria-pressed="${i === 0}" data-nilai="${esc(k.nama)}">${esc(k.nama)}</button>`).join('')}</div></fieldset>
-    <label class="kolom" for="${f('mulai')}"><span>Tanggal ambil</span><input id="${f('mulai')}" name="mulai" type="date" required><span class="salah" hidden></span></label>
-    <label class="kolom" for="${f('selesai')}"><span>Tanggal kembali</span><input id="${f('selesai')}" name="selesai" type="date" required><span class="salah" hidden></span></label>
-    <label class="kolom" for="${f('jam')}"><span>Jam ambil</span><select id="${f('jam')}" name="jam">${JAM_PILIHAN.map((j) => `<option${j === '08.00' ? ' selected' : ''}>${j}</option>`).join('')}</select></label>
-    <fieldset class="kolom"><legend>Mobil diserahkan di</legend>
-      <div class="chips" data-chips="tempat">${['Garasi kami', 'Hotel', 'Bandara', 'Alamat lain'].map((x, i) => `<button type="button" aria-pressed="${i === 0}" data-nilai="${x}">${x}</button>`).join('')}</div></fieldset>
-    <label class="kolom kolom-lebar" for="${f('alamat')}" data-alamat hidden><span>Alamat, nama hotel, atau bandara</span><input id="${f('alamat')}" name="alamat" type="text" autocomplete="street-address" placeholder="Contoh: Terminal 3 Soekarno-Hatta, pukul 09.30"><span class="salah" hidden></span></label>
-    <label class="kolom" for="${f('nama')}"><span>Nama</span><input id="${f('nama')}" name="nama" type="text" autocomplete="name" placeholder="Nama sesuai KTP" required><span class="salah" hidden></span></label>
-    <label class="kolom" for="${f('catatan')}"><span>Catatan <span class="opsional">(boleh kosong)</span></span><input id="${f('catatan')}" name="catatan" type="text" placeholder="Jumlah penumpang, tujuan, dll."></label>
+    <label class="kolom" for="${f('mulai')}"><span>${esc(Kc.fMulai)}</span><input id="${f('mulai')}" name="mulai" type="date" required><span class="salah" hidden></span></label>
+    <label class="kolom" for="${f('selesai')}"><span>${esc(Kc.fSelesai)}</span><input id="${f('selesai')}" name="selesai" type="date" required><span class="salah" hidden></span></label>
+    <label class="kolom" for="${f('jam')}"><span>${esc(Kc.fJam)}</span><select id="${f('jam')}" name="jam">${JAM_PILIHAN.map((j) => `<option${j === '08.00' ? ' selected' : ''}>${j}</option>`).join('')}</select></label>
+    <fieldset class="kolom"><legend>${esc(Kc.fTempat)}</legend>
+      <div class="chips" data-chips="tempat">${tempatPilihan.map((x, i) => `<button type="button" aria-pressed="${i === 0}" data-nilai="${esc(x)}"${i === 0 ? ' data-garasi' : ''}>${esc(x)}</button>`).join('')}</div></fieldset>
+    <label class="kolom kolom-lebar" for="${f('alamat')}" data-alamat hidden><span>${esc(Kc.fAlamat)}</span><input id="${f('alamat')}" name="alamat" type="text" autocomplete="street-address" placeholder="${esc(Kc.fAlamatPh)}"><span class="salah" hidden></span></label>
+    <label class="kolom" for="${f('nama')}"><span>${esc(Kc.fNama)}</span><input id="${f('nama')}" name="nama" type="text" autocomplete="name" placeholder="${esc(Kc.fNamaPh)}" required><span class="salah" hidden></span></label>
+    <label class="kolom" for="${f('catatan')}"><span>${esc(Kc.fCatatan)} <span class="opsional">${esc(Kc.fOpsional)}</span></span><input id="${f('catatan')}" name="catatan" type="text" placeholder="${esc(Kc.fCatatanPh)}"></label>
   </div>
   <div class="estimasi" data-estimasi aria-live="polite"></div>
   <div class="form-bawah">
-    <button class="pill pill-navy pill-lebar" type="submit">${ikon('wa')} Kirim pesanan lewat WhatsApp</button>
-    <button class="tautan" type="button" data-salin>Salin pesan</button>
+    <button class="pill pill-navy pill-lebar" type="submit">${ikon('wa')} ${esc(Kc.fKirim)}</button>
+    <button class="tautan" type="button" data-salin>${esc(Kc.fSalin)}</button>
   </div>
-  <p class="form-catatan" data-catatan>Tidak ada data yang disimpan di server. Pesan terbuka di WhatsApp dan Anda yang mengirimnya.</p>
+  <p class="form-catatan" data-catatan>${esc(Kc.fBawah)}</p>
 </form>`;
   }
   const LEMBAR = `<dialog class="lembar" id="lembar-pesan" aria-labelledby="lembar-judul">
@@ -329,21 +339,21 @@ export function rakit(h, isi, alatAwal) {
 </dialog>`;
 
   // ---------- remah roti dan navigasi ----------
-  const remah = [{ nama: 'Beranda', path: '/' }];
+  const remah = [{ nama: Kc.navBeranda, path: '/' }];
   if (h.kunci !== 'beranda') {
-    if (h.induk) { const i = TETAP.find((x) => x.kunci === h.induk); remah.push({ nama: i.kunci === 'lokasi' ? 'Lokasi' : i.nav, path: i.path }); }
-    remah.push({ nama: h.mobil ? h.mobil.nama : h.kota ? `Sewa mobil ${h.kota.nama}` : h.nav === 'Kota' ? 'Lokasi' : h.nav, path: h.path });
+    if (h.induk) { const i = TETAP.find((x) => x.kunci === h.induk); remah.push({ nama: i.kunci === 'lokasi' ? Kc.halLokasi : labelNav(i), path: i.path }); }
+    remah.push({ nama: h.mobil ? h.mobil.nama : h.kota ? `${Kc.sewaMobil} ${h.kota.nama}` : h.kunci === 'lokasi' ? Kc.halLokasi : labelNav(h), path: h.path });
   }
   const remahHtml = remah.length < 2 ? '' : `<nav class="remah" aria-label="Remah roti"><ol>${remah.map((x, i) => i === remah.length - 1 ? `<li aria-current="page">${esc(x.nama)}</li>` : `<li><a href="${x.path}">${esc(x.nama)}</a></li>`).join('')}</ol></nav>`;
   const nav = TETAP.filter((x) => x.nav);
   const navTautan = (x) => {
     const aktif = x.kunci === h.kunci || h.induk === x.kunci;
-    return `<a href="${x.path}"${aktif ? ` class="aktif"${x.kunci === h.kunci ? ' aria-current="page"' : ''}` : ''}>${esc(x.nav)}</a>`;
+    return `<a href="${x.path}"${aktif ? ` class="aktif"${x.kunci === h.kunci ? ' aria-current="page"' : ''}` : ''}>${esc(labelNav(x))}</a>`;
   };
 
   const beranda = h.kunci === 'beranda';
   const T = isi;
-  const ctx = { h, D, T, t, esc, href, ikon, aset, versi, fotoMobil, mobilBySlug, WA, LOGO, remah: remahHtml, formPesan, rupiah, peta: A.peta };
+  const ctx = { h, D, T, t, esc, href, ikon, aset, versi, fotoMobil, mobilBySlug, WA, LOGO, remah: remahHtml, formPesan, rupiah, peta: A.peta, Kc };
   const og = ogDari(h);
   const ogUrl = og.url + (og.v ? `?v=${og.v}` : '');
   // gambar terbesar di layar pertama (LCP): mobil pertama di hero beranda, mobil di halaman mobil
@@ -394,12 +404,12 @@ ${pramuat}<link rel="stylesheet" href="/styles.css?v=${versi('styles.css')}">
 </head>
 <body data-halaman="${h.templat}" data-wa-nomor="${K.wa}" data-telepon="${esc(K.telepon)}">
 ${beranda ? INTRO + '\n' : ''}<div data-nosnippet>${SPRITE}
-<a class="lewati" href="#isi">Langsung ke isi</a></div>
+<a class="lewati" href="#isi">${esc(Kc.lewati)}</a></div>
 <canvas id="latar" aria-hidden="true"></canvas>
 
 <header class="kepala di-hero" id="kepala">
   <div class="kepala-isi" data-nosnippet>
-    <a class="logo" href="/" aria-label="TWH Rent Car, beranda">${LOGO()}<span class="logo-nama">TWH Rent Car</span></a>
+    <a class="logo" href="/" aria-label="${esc(NAMA)}, beranda">${LOGO()}<span class="logo-nama">${esc(NAMA)}</span></a>
     <nav class="nav" aria-label="Navigasi utama">
       ${nav.map(navTautan).join('\n      ')}
     </nav>
@@ -414,7 +424,7 @@ ${beranda ? INTRO + '\n' : ''}<div data-nosnippet>${SPRITE}
 <div class="menu" id="menu" hidden>
   <div class="menu-latar" aria-hidden="true"></div>
   <nav aria-label="Navigasi seluler">
-    <a href="/"${beranda ? ' class="aktif" aria-current="page"' : ''}>Beranda</a>
+    <a href="/"${beranda ? ' class="aktif" aria-current="page"' : ''}>${esc(Kc.navBeranda)}</a>
     ${nav.map(navTautan).join('\n    ')}
   </nav>
   <div class="menu-bawah">
@@ -443,7 +453,7 @@ ${MODUL[h.templat](ctx).trim()}
   </section>
   <div class="kaki-bawah">
     <div class="kaki-merek">
-      <a class="kaki-logo" href="/" aria-label="TWH Rent Car, beranda">${LOGO()}<span>TWH Rent Car</span></a>
+      <a class="kaki-logo" href="/" aria-label="${esc(NAMA)}, beranda">${LOGO()}<span>${esc(NAMA)}</span></a>
       <address class="kaki-nap">
         <span>${esc(K.alamat)}</span>
         <a href="tel:${K.teleponLink}">${esc(K.telepon)}</a>
@@ -451,18 +461,18 @@ ${MODUL[h.templat](ctx).trim()}
       </address>
     </div>
     <nav class="kaki-kolom" aria-label="Armada">
-      <h3>Armada</h3>
-      ${D.ARMADA.map((m) => `<a href="/armada/${m.slug}/">Sewa ${esc(m.nama)}</a>`).join('\n      ')}
+      <h3>${esc(Kc.kakiArmada)}</h3>
+      ${D.ARMADA.map((m) => `<a href="/armada/${m.slug}/">${esc(Kc.sewa)} ${esc(m.nama)}</a>`).join('\n      ')}
     </nav>
     <nav class="kaki-kolom" aria-label="Kota dan halaman">
-      <h3>Kota</h3>
-      ${D.KOTA.map((k) => `<a href="/sewa-mobil-${k.slug}/">Sewa mobil ${esc(k.nama)}</a>`).join('\n      ')}
-      <h3 class="kaki-h3-jarak">Halaman</h3>
-      ${nav.map((x) => `<a href="${x.path}">${esc(x.nav === 'Kota' ? 'Lokasi' : x.nav)}</a>`).join('\n      ')}
+      <h3>${esc(Kc.kakiKota)}</h3>
+      ${D.KOTA.map((k) => `<a href="/sewa-mobil-${k.slug}/">${esc(Kc.sewaMobil)} ${esc(k.nama)}</a>`).join('\n      ')}
+      <h3 class="kaki-h3-jarak">${esc(Kc.kakiHalaman)}</h3>
+      ${nav.map((x) => `<a href="${x.path}">${esc(x.kunci === 'lokasi' ? Kc.halLokasi : labelNav(x))}</a>`).join('\n      ')}
     </nav>
   </div>
   <div class="kaki-dasar">
-    <span>© <span id="tahun">2026</span> TWH Rent Car · sejak ${esc(K.berdiri)}</span>
+    <span>© <span id="tahun">2026</span> ${esc(NAMA)} · ${esc(Kc.sejak)} ${esc(K.berdiri)}</span>
     <a class="kaki-oleh" href="https://arswordlab.com" target="_blank" rel="noopener">Website oleh ARSWORD</a>
   </div>
 </footer>
@@ -478,5 +488,5 @@ ${LEMBAR}
 // daftar gambar bagikan untuk alat/og.py (src/og.json): judul dan baris kecil per halaman, mobil di gambar
 export function ogDaftar(isi) {
   const D = dataDari(isi);
-  return daftarHalaman(isi, D).map((h) => ({ kunci: h.kunci, judul: h.og, sub: h.mobil ? `${h.mobil.kursi} kursi · ${h.mobil.transmisi} · mulai ${rupiah(h.mobil.harga)}/hari` : h.kota ? `${h.kota.unit} unit · antar ke hotel dan bandara · buka 24 jam` : 'Jakarta · Malang · Surabaya · buka 24 jam', mobil: h.foto }));
+  return daftarHalaman(isi, D).map((h) => ({ kunci: h.kunci, judul: h.og, sub: h.mobil ? `${h.mobil.kursi} kursi · ${h.mobil.transmisi} · mulai ${rupiah(h.mobil.harga)}/hari` : h.kota ? `${h.kota.unit} unit · antar ke hotel dan bandara · buka 24 jam` : `${D.KOTA.map((k) => k.nama).join(' · ')} · buka 24 jam`, mobil: h.foto }));
 }

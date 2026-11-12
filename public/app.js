@@ -120,7 +120,11 @@ function siapkanForm(form) {
   if (!fld('mulai').value) fld('mulai').value = iso(besok);
   if (!fld('selesai').value) fld('selesai').value = iso(new Date(besok.getTime() + HARI));
   let galat = {}, terkirim = false;
-  const perluAlamat = () => (chip('tempat') || {}).dataset?.nilai !== 'Garasi kami';
+  // pilihan tempat pertama (data-garasi) = garasi, tanpa isian alamat; tulisannya bisa diganti di panel
+  const diGarasi = () => { const c = chip('tempat'); return !c || c.hasAttribute('data-garasi'); };
+  const perluAlamat = () => !diGarasi();
+  // catatan bawah formulir seperti tertulis di halaman (Tulisan kecil di panel)
+  const catatanAwal = catatan.textContent;
   function estimasi() {
     const m = mobil(fld('mobil').value), n = lamaHari(fld('mulai').value, fld('selesai').value);
     if (!m || n < 1) { estEl.innerHTML = n < 1 && fld('selesai').value && fld('mulai').value ? '' : ''; return; }
@@ -136,7 +140,7 @@ function siapkanForm(form) {
     catatan.className = 'form-catatan' + (ada ? ' galat' : terkirim ? ' terkirim' : '');
     catatan.textContent = ada ? 'Periksa kolom yang ditandai merah.'
       : terkirim ? `WhatsApp terbuka di tab baru. Tidak terbuka? Salin pesan, lalu kirim ke ${KONFIG.telepon}.`
-      : 'Tidak ada data yang disimpan di server. Pesan terbuka di WhatsApp dan Anda yang mengirimnya.';
+      : catatanAwal;
     estimasi();
   }
   function pesan() {
@@ -148,7 +152,7 @@ function siapkanForm(form) {
       `Ambil: ${tanggalTeks(v('mulai'))}, pukul ${fld('jam').value} WIB`,
       `Kembali: ${tanggalTeks(v('selesai'))}`,
       `Lama: ${n} hari${m && n > 0 ? ` (perkiraan ${rupiah(n * m.harga)})` : ''}`,
-      `Diserahkan di: ${tempat}${tempat !== 'Garasi kami' && v('alamat') ? `, ${v('alamat')}` : ''}`,
+      `Diserahkan di: ${tempat}${!diGarasi() && v('alamat') ? `, ${v('alamat')}` : ''}`,
       `Nama: ${v('nama')}`, ...(v('catatan') ? [`Catatan: ${v('catatan')}`] : []), '',
       'Mohon info ketersediaannya. Terima kasih.'].join('\n');
   }
@@ -289,11 +293,11 @@ if (grid) {
 // ---------- daftar syarat: centang dokumen yang sudah siap ----------
 const syarat = $('#syarat-daftar');
 if (syarat) {
-  const tombol = $$('.syarat-cek', syarat), status = $('#syarat-status');
+  const tombol = $$('.syarat-cek', syarat), status = $('#syarat-status'), statusAwal = status.textContent;
   const hitung = () => {
     const n = tombol.filter((b) => b.getAttribute('aria-pressed') === 'true').length;
     status.innerHTML = n === tombol.length ? `Lengkap. <a class="tautan-polos" data-pesan href="/kontak/#pesan">Pesan mobil sekarang</a> dan kirim fotonya lewat WhatsApp.`
-      : n ? `${n} dari ${tombol.length} sudah siap.` : 'Centang yang sudah Anda siapkan.';
+      : n ? `${n} dari ${tombol.length} sudah siap.` : statusAwal;
   };
   tombol.forEach((b) => b.addEventListener('click', () => { b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true')); hitung(); }));
 }
@@ -720,6 +724,9 @@ const U_PANGGUNG = ['uRes', 'uTime', 'uLantai', 'uKA', 'uKB', 'uTA', 'uTB', 'uBl
   S.pasangUlang = (baru) => { S.U = baru.U; S.tex = baru.tex; DAFTAR.forEach((m) => pasangTekstur(S, m)); };
   // ganti mobil
   const chips = $('[data-chips="hero"]'), nama = $('#hero-nama'), detail = $('#hero-detail'), harga = $('#hero-harga');
+  // kata "kursi" dan "/hari" seperti tertulis di halaman (Tulisan kecil di panel)
+  const kataKursi = ((detail && detail.textContent.match(/^\d+\s+(.+?)\s+·/)) || [, 'kursi'])[1];
+  const kataHari = (harga && harga.querySelector('small') || {}).textContent || '/hari';
   function ganti(i, olehPengguna) {
     if (i === S.kini || !S.siap) return;
     const m = DAFTAR[i];
@@ -728,8 +735,8 @@ const U_PANGGUNG = ['uRes', 'uTime', 'uLantai', 'uKA', 'uKB', 'uTA', 'uTB', 'uBl
     if (olehPengguna) S.auto = false; else S.tAuto = S.tGanti + 6500;
     $$('button', chips).forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
     nama.textContent = m.nama; nama.href = `/armada/${m.slug}/`;
-    detail.textContent = `${m.kursi} kursi · ${m.transmisi.replace(/ \(.*\)/, '')}`;
-    harga.innerHTML = `${rupiah(m.harga)}<small>/hari</small>`;
+    detail.textContent = `${m.kursi} ${kataKursi} · ${m.transmisi.replace(/ \(.*\)/, '')}`;
+    harga.innerHTML = `${rupiah(m.harga)}<small>${kataHari.replace(/[&<>]/g, '')}</small>`;
     if (!reduced && nama.animate) [nama, detail, harga].forEach((x, k) => x.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 500, delay: 250 + k * 60, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'backwards' }));
     S.perlu = true; bangun();
   }

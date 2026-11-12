@@ -36,20 +36,20 @@ export const LABEL = {
   situs: 'Identitas & kontak', angka: 'Angka di beranda', umum: 'Tulisan di semua halaman', halaman: 'Judul & Google',
   beranda: 'Beranda', armadaHal: 'Halaman Armada', layananHal: 'Halaman Layanan', caraHal: 'Halaman Cara sewa',
   lokasiHal: 'Halaman Lokasi', kontakHal: 'Halaman Kontak', mobilHal: 'Halaman mobil', kotaHal: 'Halaman kota',
-  kaki: 'Ajakan di bawah halaman', kelas: 'Kelas mobil', armada: 'Armada & harga', kota: 'Kota', layanan: 'Layanan',
+  kaki: 'Ajakan di bawah halaman', kecil: 'Tulisan kecil', kelas: 'Kelas mobil', armada: 'Armada & harga', kota: 'Kota', layanan: 'Layanan',
   langkah: 'Langkah sewa', syarat: 'Dokumen', faq: 'Pertanyaan (FAQ)', ulasan: 'Ulasan',
 };
 // halaman panel tempat tiap bagian diubah (admin.js RUTE)
 const LETAK = {
   situs: '#/pengaturan/kontak', angka: '#/ulasan', umum: '#/pengaturan/identitas', beranda: '#/halaman/beranda',
   armadaHal: '#/halaman/armada', layananHal: '#/halaman/layanan', caraHal: '#/halaman/cara-sewa', lokasiHal: '#/halaman/lokasi',
-  kontakHal: '#/halaman/kontak', mobilHal: '#/halaman/mobil', kotaHal: '#/halaman/kota', kaki: '#/halaman/kaki',
+  kontakHal: '#/halaman/kontak', mobilHal: '#/halaman/mobil', kotaHal: '#/halaman/kota', kaki: '#/halaman/kaki', kecil: '#/halaman/kecil',
   kelas: '#/armada', armada: '#/armada', kota: '#/kota', layanan: '#/layanan', langkah: '#/cara', syarat: '#/cara', faq: '#/cara', ulasan: '#/ulasan',
 };
 export const letak = (b, jalur = []) => (b === 'halaman' ? `#/halaman/${/^[a-z-]+$/.test(jalur[1] || '') ? jalur[1] : 'beranda'}` : LETAK[b] || '#/beranda');
 
 // ---------------------------------------------------------------- isi situs sebagai pohon: letak, bentuk, nama
-const KOLOM_FOTO = /^foto$/;
+const KOLOM_FOTO = /^(foto|ogFoto)$/;
 const OPSIONAL = { armada: ['judulSeo', 'deskripsiSeo'], kota: ['judulSeo', 'deskripsiSeo'] };
 // bagian yang punya isian "mobil" (slug mobil) dan ikon layanan yang ada di situs
 const ADA_MOBIL = ['armadaHal', 'layananHal', 'caraHal', 'lokasiHal', 'kota', 'layanan'];

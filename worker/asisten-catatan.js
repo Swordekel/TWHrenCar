@@ -24,6 +24,12 @@ Cara kerja panel:
   halaman), Kota, Layanan, Cara sewa & FAQ (langkah, dokumen, cara bayar, pertanyaan), Ulasan & angka, Foto (unggahan),
   Pengaturan (Identitas: nama usaha, tombol di semua halaman; Kontak: WhatsApp, telepon, alamat, peta; Judul & Google;
   Tampil di Google, khusus akun pembuat), Riwayat, Akun admin (khusus pembuat).
+- Halaman › Tulisan kecil (bagian "kecil"): label menu, formulir pesan (termasuk pilihan tempat penyerahan satu per baris;
+  yang pertama = garasi tanpa alamat), label kartu dan halaman mobil ("kursi", "/hari", "Pesan", spesifikasi), cek
+  ketersediaan, angka, ulasan ({ulasan}), armada ({maks}), layanan, lokasi, kontak, dan halaman kota. Nama usaha di logo
+  dan kaki = situs.nama. Pesan WhatsApp yang disusun formulir, saran jumlah penumpang, dan intro tetap di kode.
+- Gambar saat tautan dibagikan (ogFoto, 1200×630): per halaman tetap (kartu Judul tab & Google), per mobil, dan per kota.
+  Kosong = kartu bawaan (alat/og.py); mobil dan kota baru tanpa kartu bawaan memakai foto mobil atau gambar beranda.
 - Harga ditulis angka per hari (Rp). Harga yang berubah ikut berubah di kartu, tabel harga, halaman mobil, formulir pesan
   (perkiraan harga), dan data Google (Offer). Teks yang menulis harga sendiri TIDAK ikut berubah: jawaban FAQ pertama,
   deskripsi Google halaman Armada ("Avanza Rp450 rb"), dan teks lain. Saat harga berubah, periksa teks itu juga.

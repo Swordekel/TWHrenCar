@@ -23,8 +23,8 @@ export default (c) => {
   <div class="wrap hero-pilih">
     <div class="hero-info" id="hero-info" aria-live="polite">
       ${m0 ? `<a class="hero-nama" id="hero-nama" href="/armada/${m0.slug}/">${esc(m0.nama)}</a>
-      <span class="hero-detail" id="hero-detail">${m0.kursi} kursi · ${esc(m0.transmisi.replace(/ \(.*\)/, ''))}</span>
-      <span class="hero-harga" id="hero-harga">${rupiah(m0.harga)}<small>/hari</small></span>` : ''}
+      <span class="hero-detail" id="hero-detail">${m0.kursi} ${esc(c.Kc.kursi)} · ${esc(m0.transmisi.replace(/ \(.*\)/, ''))}</span>
+      <span class="hero-harga" id="hero-harga">${rupiah(m0.harga)}<small>${esc(c.Kc.hari)}</small></span>` : ''}
     </div>
     <div class="hero-chips chips" data-chips="hero" role="group" aria-label="Ganti mobil di panggung">
       ${D.HERO.map((m, i) => `<button type="button" aria-pressed="${i === 0}" data-mobil="${m.slug}">${esc(m.model)}</button>`).join('\n      ')}
@@ -35,11 +35,11 @@ export default (c) => {
 
 <section class="bagian bagian-cek" data-bg="#EEF4F1" aria-label="Cek ketersediaan">
   <form class="wrap cek" id="cek" novalidate>
-    <label class="cek-kolom"><span>Kota</span><select name="kota">${D.KOTA.map((k) => `<option>${esc(k.nama)}</option>`).join('')}</select></label>
-    <label class="cek-kolom"><span>Ambil</span><input type="date" name="mulai" aria-label="Tanggal ambil"></label>
-    <label class="cek-kolom"><span>Kembali</span><input type="date" name="selesai" aria-label="Tanggal kembali"></label>
-    <label class="cek-kolom"><span>Kendaraan</span><select name="mobil"><option value="">Semua jenis</option>${D.ARMADA.map((m) => `<option value="${m.slug}">${esc(m.nama)}</option>`).join('')}</select></label>
-    <button class="pill pill-navy" type="submit">Cek ketersediaan ${ikon('panah')}</button>
+    <label class="cek-kolom"><span>${esc(c.Kc.fKota)}</span><select name="kota">${D.KOTA.map((k) => `<option>${esc(k.nama)}</option>`).join('')}</select></label>
+    <label class="cek-kolom"><span>${esc(c.Kc.cekAmbil)}</span><input type="date" name="mulai" aria-label="${esc(c.Kc.fMulai)}"></label>
+    <label class="cek-kolom"><span>${esc(c.Kc.cekKembali)}</span><input type="date" name="selesai" aria-label="${esc(c.Kc.fSelesai)}"></label>
+    <label class="cek-kolom"><span>${esc(c.Kc.kendaraan)}</span><select name="mobil"><option value="">${esc(c.Kc.cekSemua)}</option>${D.ARMADA.map((m) => `<option value="${m.slug}">${esc(m.nama)}</option>`).join('')}</select></label>
+    <button class="pill pill-navy" type="submit">${esc(c.Kc.cekTombol)} ${ikon('panah')}</button>
   </form>
 </section>
 

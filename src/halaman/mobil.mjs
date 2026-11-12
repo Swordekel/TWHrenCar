@@ -13,14 +13,14 @@ export default (c) => {
   <div class="wrap hero-mobil-isi">
     <div class="hero-mobil-teks">
       ${remah}
-      <p class="hero-label">${esc(m.jenis)} · ${m.kursi} kursi</p>
-      <h1>Sewa ${esc(m.nama)}</h1>
+      <p class="hero-label">${esc(m.jenis)} · ${m.kursi} ${esc(c.Kc.kursi)}</p>
+      <h1>${esc(c.Kc.sewa)} ${esc(m.nama)}</h1>
       <p class="hero-trim">${esc(m.trim)}</p>
-      <p class="hero-teks">${t(m.ringkas)} Tersedia di ${esc(kota)}.</p>
-      <p class="harga harga-besar"><span class="harga-mulai">Mulai</span><strong>${rupiah(m.harga)}</strong><span>/hari</span></p>
+      <p class="hero-teks">${t(m.ringkas)} ${esc(c.Kc.tersediaDi)} ${esc(kota)}.</p>
+      <p class="harga harga-besar"><span class="harga-mulai">${esc(c.Kc.mulai)}</span><strong>${rupiah(m.harga)}</strong><span>${esc(c.Kc.hari)}</span></p>
       <div class="tombol-kiri">
-        <a class="pill pill-navy" href="/kontak/?mobil=${m.slug}#pesan" data-pesan="${m.slug}">${ikon('wa')} Pesan ${esc(m.model)}</a>
-        <a class="tautan-panah" href="/armada/">Bandingkan armada ${ikon('panah')}</a>
+        <a class="pill pill-navy" href="/kontak/?mobil=${m.slug}#pesan" data-pesan="${m.slug}">${ikon('wa')} ${esc(c.Kc.pesan)} ${esc(m.model)}</a>
+        <a class="tautan-panah" href="/armada/">${esc(c.Kc.bandingkan)} ${ikon('panah')}</a>
       </div>
     </div>
     <div class="hero-mobil-panggung">${fotoMobil(m, '(max-width: 900px) 92vw, 52vw', 'hero-mobil-foto', 'awal')}</div>
@@ -36,14 +36,14 @@ export default (c) => {
       <ul class="daftar-cek">${m.cocok.map((x) => `<li>${ikon('cek')}${esc(x)}</li>`).join('')}</ul>
     </div>
     <dl class="spek">
-      <div><dt>Kendaraan</dt><dd>${esc(m.nama)}</dd></div>
-      <div><dt>Varian</dt><dd>${esc(m.trim)}</dd></div>
-      <div><dt>Jenis</dt><dd>${esc(m.jenis)}</dd></div>
-      <div><dt>Kapasitas</dt><dd>${m.kursi} penumpang</dd></div>
-      <div><dt>Transmisi</dt><dd>${esc(m.transmisi)}</dd></div>
-      <div><dt>Harga sewa</dt><dd>${rupiah(m.harga)} per hari</dd></div>
-      <div><dt>Kota</dt><dd>${D.KOTA.map((k) => `<a href="/sewa-mobil-${k.slug}/">${esc(k.nama)}</a>`).join(', ')}</dd></div>
-      <div><dt>Penyerahan</dt><dd>${t(M.penyerahan)}</dd></div>
+      <div><dt>${esc(c.Kc.kendaraan)}</dt><dd>${esc(m.nama)}</dd></div>
+      <div><dt>${esc(c.Kc.varian)}</dt><dd>${esc(m.trim)}</dd></div>
+      <div><dt>${esc(c.Kc.jenis)}</dt><dd>${esc(m.jenis)}</dd></div>
+      <div><dt>${esc(c.Kc.kapasitas)}</dt><dd>${m.kursi} ${esc(c.Kc.penumpang)}</dd></div>
+      <div><dt>${esc(c.Kc.transmisi)}</dt><dd>${esc(m.transmisi)}</dd></div>
+      <div><dt>${esc(c.Kc.hargaSewa)}</dt><dd>${rupiah(m.harga)} ${esc(c.Kc.perHari)}</dd></div>
+      <div><dt>${esc(c.Kc.kotaLabel)}</dt><dd>${D.KOTA.map((k) => `<a href="/sewa-mobil-${k.slug}/">${esc(k.nama)}</a>`).join(', ')}</dd></div>
+      <div><dt>${esc(c.Kc.penyerahan)}</dt><dd>${t(M.penyerahan)}</dd></div>
     </dl>
   </div>
 </section>
@@ -60,7 +60,7 @@ export default (c) => {
 
 <section class="bagian" data-bg="#EEF4F1" aria-labelledby="judul-lain">
   <div class="wrap">
-    <div class="dua-kolom"><h2 class="h2" id="judul-lain">${t(M.lainJudul)}</h2><a class="tautan-panah" href="/armada/">Semua armada ${ikon('panah')}</a></div>
+    <div class="dua-kolom"><h2 class="h2" id="judul-lain">${t(M.lainJudul)}</h2><a class="tautan-panah" href="/armada/">${esc(c.Kc.semuaArmada)} ${ikon('panah')}</a></div>
     <div class="grid-mobil grid-tiga">${lain.map((x) => kartuMobil(c, x)).join('\n')}</div>
   </div>
 </section>`;

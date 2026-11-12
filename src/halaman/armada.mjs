@@ -12,7 +12,7 @@ ${heroHalaman(c, { judul: A.judul, teks: A.teks, mobil: mobilBySlug(A.mobil) })}
     <div class="penumpang-kiri">
       <h2 class="h3" id="judul-penumpang">${t(A.penumpangJudul)}</h2>
       <p class="teks">${t(A.penumpangTeks)}</p>
-      <div class="penumpang-angka"><output id="penumpang-n" for="penumpang-geser">4</output><span>orang</span></div>
+      <div class="penumpang-angka"><output id="penumpang-n" for="penumpang-geser">4</output><span>${esc(c.Kc.orang)}</span></div>
       <input type="range" id="penumpang-geser" min="1" max="${maks}" value="4" step="1" aria-label="Jumlah penumpang">
       <p class="penumpang-saran" id="penumpang-saran" aria-live="polite"></p>
     </div>
@@ -25,14 +25,14 @@ ${heroHalaman(c, { judul: A.judul, teks: A.teks, mobil: mobilBySlug(A.mobil) })}
     <div class="daftar-kepala">
       <h2 class="h2" id="judul-daftar">${t(A.daftarJudul)}</h2>
       <div class="chips chips-filter" data-chips="kelas" role="group" aria-label="Saring menurut jenis">
-        <button type="button" aria-pressed="true" data-kelas="semua">Semua</button>
+        <button type="button" aria-pressed="true" data-kelas="semua">${esc(c.Kc.semua)}</button>
         ${D.KELAS.map((k) => `<button type="button" aria-pressed="false" data-kelas="${esc(k.id)}">${esc(k.label)}</button>`).join('\n        ')}
       </div>
     </div>
     <div class="grid-mobil" id="grid-mobil">
       ${D.ARMADA.map((m) => kartuMobil(c, m)).join('\n      ')}
     </div>
-    <p class="grid-kosong" id="grid-kosong" hidden>Belum ada kendaraan yang muat. Untuk rombongan lebih dari ${maks} orang, <a class="tautan-polos" href="/kontak/#pesan" data-pesan>tanyakan kombinasi bus</a>.</p>
+    <p class="grid-kosong" id="grid-kosong" hidden>${esc(String(c.Kc.kosong).replace('{maks}', maks))} <a class="tautan-polos" href="/kontak/#pesan" data-pesan>${esc(c.Kc.kosongTautan)}</a>.</p>
   </div>
 </section>
 
@@ -42,7 +42,7 @@ ${heroHalaman(c, { judul: A.judul, teks: A.teks, mobil: mobilBySlug(A.mobil) })}
     <div class="tabel-bungkus">
       <table class="tabel-harga">
         <caption>${t(A.hargaKet)}</caption>
-        <thead><tr><th scope="col">Kendaraan</th><th scope="col">Jenis</th><th scope="col">Kursi</th><th scope="col">Transmisi</th><th scope="col">Harga per hari</th></tr></thead>
+        <thead><tr><th scope="col">${esc(c.Kc.kendaraan)}</th><th scope="col">${esc(c.Kc.jenis)}</th><th scope="col">${esc(c.Kc.kursiKolom)}</th><th scope="col">${esc(c.Kc.transmisi)}</th><th scope="col">${esc(c.Kc.hargaHari)}</th></tr></thead>
         <tbody>
           ${D.ARMADA.map((m) => `<tr><th scope="row"><a href="/armada/${m.slug}/">${esc(m.nama)}</a> <span class="redup">${esc(m.trim)}</span></th><td>${esc(m.jenis)}</td><td>${m.kursi}</td><td>${esc(m.transmisi)}</td><td class="angka-kanan">${rupiah(m.harga)}</td></tr>`).join('\n          ')}
         </tbody>

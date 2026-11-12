@@ -8,7 +8,7 @@ export default (c) => {
   const lain = D.KOTA.filter((x) => x.slug !== k.slug);
   return `
 ${heroHalaman({ ...c, t }, { judul: k.judul, teks: k.pembuka, mobil: mobilBySlug(k.mobil),
-    tombol: `<div class="tombol-kiri"><a class="pill pill-navy" href="/kontak/?kota=${encodeURIComponent(k.nama)}#pesan" data-pesan data-kota="${esc(k.nama)}">${ikon('wa')} Pesan di ${esc(k.nama)}</a><a class="tautan-panah" href="#armada-kota">${esc(k.unit)} unit tersedia ${ikon('panah')}</a></div>` })}
+    tombol: `<div class="tombol-kiri"><a class="pill pill-navy" href="/kontak/?kota=${encodeURIComponent(k.nama)}#pesan" data-pesan data-kota="${esc(k.nama)}">${ikon('wa')} ${esc(c.Kc.pesanDi)} ${esc(k.nama)}</a><a class="tautan-panah" href="#armada-kota">${esc(k.unit)} ${esc(c.Kc.unitTersedia)} ${ikon('panah')}</a></div>` })}
 
 <section class="bagian" data-bg="#EEF4F1" aria-labelledby="judul-antar">
   <div class="wrap dua-kolom kota-antar">
@@ -17,11 +17,11 @@ ${heroHalaman({ ...c, t }, { judul: k.judul, teks: k.pembuka, mobil: mobilBySlug
       <p class="teks">${t(k.cerita)}</p>
     </div>
     <div class="antar-daftar">
-      <h3 class="judul-kecil">Bandara</h3>
+      <h3 class="judul-kecil">${esc(c.Kc.bandara)}</h3>
       <ul class="daftar-cek">${k.bandara.map((b) => `<li>${ikon('pesawat')}${esc(b)}</li>`).join('')}</ul>
-      <h3 class="judul-kecil">Juga diantar ke</h3>
+      <h3 class="judul-kecil">${esc(c.Kc.jugaDiantar)}</h3>
       <ul class="daftar-cek">${k.titik.map((b) => `<li>${ikon('pin')}${esc(b)}</li>`).join('')}</ul>
-      <p class="catatan-kecil">${t(K.biaya)} ${k.garasi ? `Ambil sendiri di garasi: ${esc(D.KONTAK.alamatPendek)}.` : ''}</p>
+      <p class="catatan-kecil">${t(K.biaya)} ${k.garasi ? `${esc(c.Kc.ambilSendiri)} ${esc(D.KONTAK.alamatPendek)}.` : ''}</p>
     </div>
   </div>
 </section>

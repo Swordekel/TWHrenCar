@@ -17,8 +17,8 @@ ${heroHalaman(c, { judul: L.judul, teks: L.teks, mobil: mobilBySlug(L.mobil) })}
         <p class="layanan-no">${String(i + 1).padStart(2, '0')}</p>
         <h2 class="h3">${t(l.judul)}.</h2>
         <p class="teks">${t(l.teks)}</p>
-        ${m ? `<p class="layanan-saran">Paling cocok: <a href="/armada/${m.slug}/">${esc(m.nama)}</a>, mulai ${rupiah(m.harga)}/hari</p>` : ''}
-        <div class="tombol-kiri"><a class="pill pill-navy" data-wa="layanan" data-layanan="${esc(l.wa)}" href="https://wa.me/" target="_blank" rel="noopener">${ikon('wa')} Tanya ${t(l.judul.toLowerCase())}</a></div>
+        ${m ? `<p class="layanan-saran">${esc(c.Kc.cocok)} <a href="/armada/${m.slug}/">${esc(m.nama)}</a>, ${esc(c.Kc.mulaiKecil)} ${rupiah(m.harga)}${esc(c.Kc.hari)}</p>` : ''}
+        <div class="tombol-kiri"><a class="pill pill-navy" data-wa="layanan" data-layanan="${esc(l.wa)}" href="https://wa.me/" target="_blank" rel="noopener">${ikon('wa')} ${esc(c.Kc.tanya)} ${t(l.judul.toLowerCase())}</a></div>
       </div>
       ${m ? `<a class="layanan-baris-foto" href="/armada/${m.slug}/" tabindex="-1" aria-hidden="true">${c.fotoMobil(m, '(max-width: 900px) 86vw, 44vw', '', 'lazy', '')}</a>` : ''}
     </article>`; }).join('\n    ')}

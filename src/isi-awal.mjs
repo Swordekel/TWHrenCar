@@ -48,6 +48,42 @@ export const ISI_AWAL = {
     buka: 'Buka 24 jam, setiap hari',
   },
 
+  // tulisan kecil di seluruh situs (Halaman › Tulisan kecil): menu, formulir pesan, label kartu dan halaman mobil, cek
+  // ketersediaan, angka, ulasan, armada, layanan, lokasi, kontak, halaman kota (pemilik ARSWORD 2026-11-13: "saya ingin
+  // lengkap alur nya semua bisa diganti + ditambahkan untuk foto teks gambar dan sebagainya pada admin panel
+  // twhrentcar untuk akun admin"). Nama usaha di logo dan kaki memakai situs.nama.
+  kecil: {
+    // menu dan kaki
+    navBeranda: 'Beranda', navArmada: 'Armada', navLayanan: 'Layanan', navCara: 'Cara Sewa', navLokasi: 'Kota', navKontak: 'Kontak',
+    halLokasi: 'Lokasi', kakiArmada: 'Armada', kakiKota: 'Kota', kakiHalaman: 'Halaman', sewa: 'Sewa', sewaMobil: 'Sewa mobil',
+    sejak: 'sejak', lewati: 'Langsung ke isi',
+    // formulir pesan (lembar pesan dan halaman Kontak). Pilihan tempat satu per baris; yang pertama = garasi (tanpa alamat)
+    fMobil: 'Mobil', fMobilKosong: 'Belum tahu, minta saran', fKota: 'Kota', fMulai: 'Tanggal ambil', fSelesai: 'Tanggal kembali',
+    fJam: 'Jam ambil', fTempat: 'Mobil diserahkan di', fTempatPilihan: 'Garasi kami\nHotel\nBandara\nAlamat lain',
+    fAlamat: 'Alamat, nama hotel, atau bandara', fAlamatPh: 'Contoh: Terminal 3 Soekarno-Hatta, pukul 09.30', fNama: 'Nama',
+    fNamaPh: 'Nama sesuai KTP', fCatatan: 'Catatan', fOpsional: '(boleh kosong)', fCatatanPh: 'Jumlah penumpang, tujuan, dll.',
+    fKirim: 'Kirim pesanan lewat WhatsApp', fSalin: 'Salin pesan',
+    fBawah: 'Tidak ada data yang disimpan di server. Pesan terbuka di WhatsApp dan Anda yang mengirimnya.',
+    // kartu mobil dan halaman satu mobil
+    kursi: 'kursi', hari: '/hari', pesan: 'Pesan', mulai: 'Mulai', tersediaDi: 'Tersedia di', bandingkan: 'Bandingkan armada',
+    kendaraan: 'Kendaraan', varian: 'Varian', jenis: 'Jenis', kapasitas: 'Kapasitas', penumpang: 'penumpang', transmisi: 'Transmisi',
+    hargaSewa: 'Harga sewa', perHari: 'per hari', kotaLabel: 'Kota', penyerahan: 'Penyerahan', semuaArmada: 'Semua armada',
+    // beranda: cek ketersediaan dan angka
+    cekAmbil: 'Ambil', cekKembali: 'Kembali', cekSemua: 'Semua jenis', cekTombol: 'Cek ketersediaan',
+    angkaArmada: 'Armada', angkaKota: 'Kota', angkaRating: 'Rating Google', angkaMelayani: 'Melayani', angkaJam: '24', angkaJamSatuan: 'jam',
+    // ulasan ({ulasan} = jumlah ulasan di Pengaturan › Angka)
+    ulasanDari: 'dari {ulasan} ulasan di Google', bacaUlasan: 'Baca ulasannya', menyewa: 'Menyewa',
+    // halaman Armada ({maks} = kursi kendaraan terbesar)
+    orang: 'orang', semua: 'Semua', kosong: 'Belum ada kendaraan yang muat. Untuk rombongan lebih dari {maks} orang,',
+    kosongTautan: 'tanyakan kombinasi bus', kursiKolom: 'Kursi', hargaHari: 'Harga per hari',
+    // layanan dan cara sewa
+    cocok: 'Paling cocok:', mulaiKecil: 'mulai', tanya: 'Tanya', centang: 'Centang yang sudah Anda siapkan.',
+    // lokasi, kontak, halaman kota
+    unit: 'unit', garasiUtama: 'garasi utama', tampilPeta: 'Tampilkan peta', kontakWa: 'WhatsApp', kontakTelepon: 'Telepon',
+    kontakGarasi: 'Garasi', kontakJam: 'Jam layanan', pesanDi: 'Pesan di', unitTersedia: 'unit tersedia', bandara: 'Bandara',
+    jugaDiantar: 'Juga diantar ke', ambilSendiri: 'Ambil sendiri di garasi:',
+  },
+
   // judul tab, deskripsi untuk Google, dan kalimat gambar bagikan halaman-halaman tetap (halaman satu mobil dan satu kota
   // punya isian Google sendiri di Armada dan Kota)
   halaman: {
@@ -167,7 +203,7 @@ export const ISI_AWAL = {
   armada: D.ARMADA.map((m) => ({
     id: m.slug, slug: m.slug, tampil: true, merek: m.merek, model: m.model, trim: m.trim, kelas: m.kelas, jenis: m.jenis,
     kursi: m.kursi, transmisi: m.transmisi, harga: m.harga, foto: m.slug, arah: m.arah, lampu: m.lampu ? m.lampu.map((p) => p.slice()) : [],
-    hero: m.hero || 0, ringkas: m.ringkas, isi: m.isi, cocok: m.cocok.slice(), judulSeo: '', deskripsiSeo: '',
+    hero: m.hero || 0, ringkas: m.ringkas, isi: m.isi, cocok: m.cocok.slice(), judulSeo: '', deskripsiSeo: '', ogFoto: '',
   })),
 
   // kota. mobil = mobil di bagian atas halaman kota itu. peta = titik kota di peta Jawa [x, y] yang dipasang di panel
@@ -176,7 +212,7 @@ export const ISI_AWAL = {
   kota: D.KOTA.map((k) => ({
     id: k.slug, slug: k.slug, nama: k.nama, unit: k.unit, garasi: !!k.garasi,
     mobil: k.slug === 'jakarta' ? 'toyota-avanza' : k.slug === 'malang' ? 'toyota-hiace' : 'toyota-innova-zenix',
-    judul: k.judul, pembuka: k.pembuka, bandara: k.bandara.slice(), titik: k.titik.slice(), cerita: k.cerita, judulSeo: '', deskripsiSeo: '',
+    judul: k.judul, pembuka: k.pembuka, bandara: k.bandara.slice(), titik: k.titik.slice(), cerita: k.cerita, judulSeo: '', deskripsiSeo: '', ogFoto: '',
     peta: [], label: '',
   })),
 
@@ -192,6 +228,9 @@ export const ISI_AWAL = {
   faq: D.FAQ.map((f, i) => ({ id: id('q', i), tanya: f.t, jawab: f.j })),
   ulasan: D.ULASAN.map((x, i) => ({ id: id('u', i), nama: x.nama, mobil: x.mobil, teks: x.teks })),
 };
+
+// gambar bagikan yang dipasang di panel untuk halaman tetap (kosong = gambar bawaan dari alat/og.py)
+for (const h of Object.values(ISI_AWAL.halaman)) h.ogFoto = '';
 
 // Daftar bagian (urutan di panel admin)
 export const BAGIAN = Object.keys(ISI_AWAL);
